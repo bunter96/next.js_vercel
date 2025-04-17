@@ -3,9 +3,9 @@ import { account } from '@/lib/appwriteConfig';
 export default async function handler(req, res) {
   try {
     const { referer } = req.headers;
-    const successRedirect = referer && referer.includes('localhost:3000')
+    const successRedirect = referer && referer.includes('https://lowcosttts.vercel.app')
       ? referer.replace(/\/login$/, '/account') // Redirect to /account instead of /login
-      : 'http://localhost:3000/account';
+      : 'https://lowcosttts.vercel.app/account';
     const failureRedirect = 'http://localhost:3000/login';
 
     // Create OAuth2 session (returns a string URL)

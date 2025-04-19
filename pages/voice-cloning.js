@@ -10,10 +10,12 @@ export default function VoiceCloning() {
   const router = useRouter();
 
   const [name, setName] = useState('');
-  const [file, setFile] = useState(null);
-  const [description, setDescription] = useState('');
+  const [audioFile, setAudioFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [clones, setClones] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [audioDurationError, setAudioDurationError] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -21,30 +23,85 @@ export default function VoiceCloning() {
     }
   }, [loading, user]);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleClone = async () => {
-    if (!file || !name) return;
-
-    setUploading(true);
-
-    // Simulate upload logic for now
-    setTimeout(() => {
-      const newClone = {
-        id: Date.now(),
-        name,
-        description,
-        fileName: file.name,
+  const handleAudioChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const audio = new Audio();
+      audio.src = URL.createObjectURL(file);
+      audio.onloadedmetadata = () => {
+        if (audio.duration < 30) {
+          setAudioFile(null);
+          setErrors((prev) => ({ ...prev, audioFile: '' }));
+          setAudioDurationError('Audio must be at least 30 seconds long.');
+        } else {
+          setAudioFile(file);
+          setAudioDurationError('');
+          setErrors((prev) => ({ ...prev, audioFile: '' }));
+        }
       };
-      setClones((prev) => [newClone, ...prev]);
-      setName('');
-      setDescription('');
-      setFile(null);
-      setUploading(false);
-    }, 1500);
+    }
   };
+
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+    setErrors((prev) => ({ ...prev, imageFile: '' }));
+  };
+
+  const validateFields = () => {
+    const newErrors = {};
+    if (!name.trim()) newErrors.name = 'Clone name is required';
+    if (!audioFile) newErrors.audioFile = 'Please select an audio file';
+    if (!imageFile) newErrors.imageFile = 'Please select an image for avatar';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+const handleClone = async () => {
+  if (!validateFields()) return;
+
+  setUploading(true);
+
+  const formData = new FormData();
+  formData.append('audio', audioFile);
+  formData.append('title', name);
+
+  // Log FormData entries for debugging
+  for (let [key, value] of formData.entries()) {
+    console.log(`FormData: ${key}=${value}`);
+  }
+
+  try {
+    const response = await fetch('/api/voice-clone', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Voice cloning failed');
+    }
+
+    const newClone = {
+      id: Date.now(),
+      name,
+      audioFileName: audioFile.name,
+      imageFileName: imageFile.name,
+      modelId: data.model_id || 'N/A',
+    };
+    setClones((prev) => [newClone, ...prev]);
+    setName('');
+    setAudioFile(null);
+    setImageFile(null);
+    setErrors({});
+    alert('Voice cloned successfully!');
+  } catch (error) {
+    console.error('Frontend cloning error:', error);
+    alert(`Voice cloning failed: ${error.message}`);
+  } finally {
+    setUploading(false);
+  }
+};
 
   if (loading || !user) return null;
 
@@ -54,60 +111,133 @@ export default function VoiceCloning() {
         <title>Voice Cloning - Fish Audio</title>
       </Head>
 
-      <main className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold text-center mb-8">Voice Cloning</h1>
+      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-extrabold text-center mb-10 text-gray-800">
+            Voice Cloning Studio
+          </h1>
 
-        <div className="space-y-6 mb-10">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Clone Name"
-            className="w-full border p-3 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-12 transition-all duration-300 hover:shadow-2xl">
+            <div className="space-y-6">
+              {/* Clone Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Clone Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setErrors((prev) => ({ ...prev, name: '' }));
+                  }}
+                  placeholder="Enter clone name"
+                  className={`w-full border rounded-lg p-3 focus:ring-2 transition-all duration-200 ${
+                    errors.name
+                      ? 'border-red-500 focus:ring-red-400'
+                      : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                  }`}
+                />
+                {errors.name && (
+                  <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+                )}
+              </div>
 
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Optional Description"
-            className="w-full border p-3 rounded-md focus:ring-2 focus:ring-blue-500"
-          />
+              {/* Audio File Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Audio File <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleAudioChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all duration-200"
+                />
+                {errors.audioFile && (
+                  <p className="text-sm text-red-600 mt-1">{errors.audioFile}</p>
+                )}
+                {audioDurationError && (
+                  <p className="text-sm text-red-600 mt-1">{audioDurationError}</p>
+                )}
+              </div>
 
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={handleFileChange}
-            className="block"
-          />
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Avatar Image <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all duration-200"
+                />
+                {errors.imageFile && (
+                  <p className="text-sm text-red-600 mt-1">{errors.imageFile}</p>
+                )}
+              </div>
 
-          <button
-            onClick={handleClone}
-            disabled={uploading || !file || !name}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-semibold disabled:opacity-50"
-          >
-            {uploading ? 'Cloning Voice...' : 'Start Voice Cloning'}
-          </button>
-        </div>
-
-        {clones.length > 0 && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Your Cloned Voices</h2>
-            <div className="space-y-4">
-              {clones.map((clone) => (
-                <div
-                  key={clone.id}
-                  className="p-4 border rounded-md shadow-sm bg-white"
-                >
-                  <h3 className="text-lg font-bold">{clone.name}</h3>
-                  {clone.description && (
-                    <p className="text-sm text-gray-600">{clone.description}</p>
-                  )}
-                  <p className="text-xs text-gray-400 mt-1">File: {clone.fileName}</p>
-                </div>
-              ))}
+              {/* Submit Button */}
+              <button
+                onClick={handleClone}
+                disabled={uploading}
+                className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-all duration-200"
+              >
+                {uploading && (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                )}
+                <span>{uploading ? 'Cloning Voice...' : 'Start Voice Cloning'}</span>
+              </button>
             </div>
-          </section>
-        )}
+          </div>
+
+          {/* Clone Preview Section */}
+          {clones.length > 0 && (
+            <section>
+              <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+                Your Cloned Voices
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {clones.map((clone) => (
+                  <div
+                    key={clone.id}
+                    className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      {clone.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-1">
+                      Audio: {clone.audioFileName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Image: {clone.imageFileName}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </main>
     </>
   );

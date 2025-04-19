@@ -123,7 +123,7 @@ export default function PricingPage() {
                 </button>
               </div>
               <div className="mt-8">
-                <h3 className="text-sm font-medium text-gray-900">What's included</h3>
+                <h3 className="text-sm font-medium text-gray-900">What&rsquo;s included</h3>
                 <ul className="mt-6 space-y-4">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start">

@@ -5,6 +5,7 @@ const fs = require('fs').promises; // Use promises for async file operations
 const path = require('path');
 const axios = require('axios');
 const { Blob } = require('buffer'); // Import Blob for Node.js
+const os = require('os'); // For accessing /tmp directory
 
 export const config = {
   api: {
@@ -17,7 +18,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const uploadDir = path.join(process.cwd(), 'Uploads');
+  // Use /tmp directory for Vercel serverless environment
+  const uploadDir = path.join(os.tmpdir(), 'uploads');
 
   // Ensure upload directory exists
   try {
@@ -70,11 +72,8 @@ export default async function handler(req, res) {
     formData.append('type', 'tts');
     formData.append('title', title);
     formData.append('train_mode', 'fast');
-    formData.append('visibility', 'private'); // Optional, per example
-    formData.append('enhance_audio_quality', 'true'); // Optional, per example
-    // Omit 'texts' since no text input is provided
-    // Example if texts are needed:
-    // formData.append('texts', 'User-provided text');
+    formData.append('visibility', 'private'); // Optional
+    formData.append('enhance_audio_quality', 'true'); // Optional
 
     // Log FormData for debugging
     for (let [key, value] of formData.entries()) {

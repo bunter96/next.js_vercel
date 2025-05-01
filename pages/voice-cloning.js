@@ -1,13 +1,16 @@
-// pages/voice-cloning.js
-
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
+import { databases, ID, Permission, Role } from '@/lib/appwriteConfig';
 
 export default function VoiceCloning() {
   const { user, loading } = useAuth();
   const router = useRouter();
+
+  // Appwrite database constants
+  const DATABASE_ID = '67fecfed002f909fc072';
+  const USER_MODELS_COLLECTION_ID = '680431be00081ea103d1';
 
   const [name, setName] = useState('');
   const [audioFile, setAudioFile] = useState(null);
@@ -16,6 +19,11 @@ export default function VoiceCloning() {
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
   const [audioDurationError, setAudioDurationError] = useState('');
+  
+  const MAX_AUDIO_SIZE = 100 * 1024 * 1024; // 100MB
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav'];
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
   useEffect(() => {
     if (!loading && !user) {
@@ -25,26 +33,55 @@ export default function VoiceCloning() {
 
   const handleAudioChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const audio = new Audio();
-      audio.src = URL.createObjectURL(file);
-      audio.onloadedmetadata = () => {
-        if (audio.duration < 30) {
-          setAudioFile(null);
-          setErrors((prev) => ({ ...prev, audioFile: '' }));
-          setAudioDurationError('Audio must be at least 30 seconds long.');
-        } else {
-          setAudioFile(file);
-          setAudioDurationError('');
-          setErrors((prev) => ({ ...prev, audioFile: '' }));
-        }
-      };
+    if (!file) {
+      console.log('No audio file selected'); // Debug log
+      return;
     }
+
+    if (!ALLOWED_AUDIO_TYPES.includes(file.type)) {
+      setErrors(prev => ({ ...prev, audioFile: 'Invalid audio format. Use MP3 or WAV' }));
+      return;
+    }
+
+    if (file.size > MAX_AUDIO_SIZE) {
+      setErrors(prev => ({ ...prev, audioFile: 'File too large (max 100MB)' }));
+      return;
+    }
+
+    const audio = new Audio();
+    audio.src = URL.createObjectURL(file);
+    audio.onloadedmetadata = () => {
+      if (audio.duration < 30) {
+        setAudioDurationError('Audio must be at least 30 seconds long.');
+      } else {
+        console.log('Selected audio file:', file); // Debug log
+        setAudioFile(file);
+        setAudioDurationError('');
+        setErrors(prev => ({ ...prev, audioFile: '' }));
+      }
+    };
   };
 
   const handleImageChange = (e) => {
-    setImageFile(e.target.files[0]);
-    setErrors((prev) => ({ ...prev, imageFile: '' }));
+    const file = e.target.files[0];
+    if (!file) {
+      console.log('No image file selected'); // Debug log
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setErrors(prev => ({ ...prev, imageFile: 'Invalid image format. Use JPEG or PNG' }));
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setErrors(prev => ({ ...prev, imageFile: 'Image too large (max 10MB)' }));
+      return;
+    }
+
+    console.log('Selected image file:', file); // Debug log
+    setImageFile(file);
+    setErrors(prev => ({ ...prev, imageFile: '' }));
   };
 
   const validateFields = () => {
@@ -56,52 +93,91 @@ export default function VoiceCloning() {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleClone = async () => {
-  if (!validateFields()) return;
-
-  setUploading(true);
-
-  const formData = new FormData();
-  formData.append('audio', audioFile);
-  formData.append('title', name);
-
-  // Log FormData entries for debugging
-  for (let [key, value] of formData.entries()) {
-    console.log(`FormData: ${key}=${value}`);
-  }
-
-  try {
-    const response = await fetch('/api/voice-clone', {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Voice cloning failed');
-    }
-
-    const newClone = {
-      id: Date.now(),
-      name,
-      audioFileName: audioFile.name,
-      imageFileName: imageFile.name,
-      modelId: data.model_id || 'N/A',
-    };
-    setClones((prev) => [newClone, ...prev]);
+  const resetForm = () => {
     setName('');
     setAudioFile(null);
     setImageFile(null);
     setErrors({});
-    alert('Voice cloned successfully!');
-  } catch (error) {
-    console.error('Frontend cloning error:', error);
-    alert(`Voice cloning failed: ${error.message}`);
-  } finally {
-    setUploading(false);
-  }
-};
+    setAudioDurationError('');
+    // Reset file input elements
+    document.querySelector('input[name="voices"]').value = '';
+    document.querySelector('input[name="cover_image"]').value = '';
+  };
+
+  const saveModelToAppwrite = async (modelData) => {
+    try {
+      const response = await databases.createDocument(
+        DATABASE_ID,
+        USER_MODELS_COLLECTION_ID,
+        ID.unique(),
+        {
+          userId: user.$id,
+          fishAudioModelId: modelData.modelId,
+          title: modelData.title,
+          coverImage: modelData.coverImage,
+          state: modelData.state,
+          createdAt: modelData.createdAt,
+        },
+        [
+          Permission.read(Role.user(user.$id)),
+          Permission.write(Role.user(user.$id)),
+          Permission.update(Role.user(user.$id)),
+          Permission.delete(Role.user(user.$id)),
+        ]
+      );
+      return response;
+    } catch (error) {
+      console.error('Error saving to Appwrite:', error);
+      throw error;
+    }
+  };
+
+  const handleClone = async () => {
+    if (!validateFields()) return;
+
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append('title', name);
+    formData.append('voices', audioFile);
+    if (imageFile) {
+      formData.append('cover_image', imageFile);
+    }
+    console.log('FormData entries:', [...formData.entries()]); // Debug log
+
+    try {
+      const response = await fetch('/api/voice-clone', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Voice cloning failed');
+      }
+
+      const data = await response.json();
+      
+      const newClone = {
+        id: data.modelId,
+        name: data.title,
+        coverImage: data.coverImage,
+        state: data.state,
+        createdAt: new Date(data.createdAt).toLocaleString(),
+      };
+
+      setClones(prev => [newClone, ...prev]);
+      await saveModelToAppwrite(data);
+      resetForm();
+      alert('Voice cloned successfully!');
+
+    } catch (error) {
+      console.error('Cloning error:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   if (loading || !user) return null;
 
@@ -150,8 +226,9 @@ const handleClone = async () => {
                 </label>
                 <input
                   type="file"
-                  accept="audio/*"
+                  accept="audio/mpeg,audio/wav"
                   onChange={handleAudioChange}
+                  name="voices"
                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all duration-200"
                 />
                 {errors.audioFile && (
@@ -169,8 +246,9 @@ const handleClone = async () => {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png"
                   onChange={handleImageChange}
+                  name="cover_image"
                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all duration-200"
                 />
                 {errors.imageFile && (
@@ -223,15 +301,29 @@ const handleClone = async () => {
                     key={clone.id}
                     className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                   >
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">
-                      {clone.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mb-1">
-                      Audio: {clone.audioFileName}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Image: {clone.imageFileName}
-                    </p>
+                    <div className="flex items-start space-x-4">
+                      {clone.coverImage && (
+                        <img
+                          src={clone.coverImage}
+                          alt="Voice cover"
+                          className="w-16 h-16 rounded-lg object-cover"
+                        />
+                      )}
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-1">
+                          {clone.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-1">
+                          Status: <span className="capitalize">{clone.state}</span>
+                        </p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Created: {clone.createdAt}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Model ID: {clone.id}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

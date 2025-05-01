@@ -4,23 +4,101 @@ import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
+import { databases, Query } from '@/lib/appwriteConfig';
+
+const DATABASE_ID = '67fecfed002f909fc072';
+const USER_PROFILES_COLLECTION_ID = '67fecffb00075d13ade6'; // TODO: Replace with actual ID
+const DEFAULT_CHAR_REMAINING = 5000;
+const DEFAULT_CHAR_ALLOWED = 5000; // Adjust based on actual plan data
 
 const Profile = () => {
-  const { user, loading, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const [imageSrc, setImageSrc] = useState(user?.prefs?.picture || '/default-avatar.png');
+  const [charRemaining, setCharRemaining] = useState(DEFAULT_CHAR_REMAINING);
+  const [charAllowed, setCharAllowed] = useState(DEFAULT_CHAR_ALLOWED);
+  const [fetchLoading, setFetchLoading] = useState(true);
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
   // Update image source when user changes
   useEffect(() => {
     setImageSrc(user?.prefs?.picture || '/default-avatar.png');
   }, [user]);
+
+  // Fetch char_remaining from user_profiles
+  useEffect(() => {
+    if (!user || authLoading) return;
+
+    const fetchProfile = async () => {
+      setFetchLoading(true);
+      try {
+        console.log('Fetching profile for userId:', user.$id);
+        const response = await databases.listDocuments(
+          DATABASE_ID,
+          USER_PROFILES_COLLECTION_ID,
+          [Query.equal('userId', user.$id)]
+        );
+        console.log('Profile fetch response:', {
+          documentCount: response.documents.length,
+          documents: response.documents,
+        });
+
+        const profile = response.documents[0];
+        if (profile) {
+          const charRemainingValue = Number.isInteger(profile.char_remaining)
+            ? profile.char_remaining
+            : DEFAULT_CHAR_REMAINING;
+          setCharRemaining(charRemainingValue);
+          console.log('Fetched char_remaining:', charRemainingValue);
+        } else {
+          console.warn('No user profile found for userId:', user.$id);
+          // Optionally create a new profile to match text-to-speech.js
+          const newProfile = await databases.createDocument(
+            DATABASE_ID,
+            USER_PROFILES_COLLECTION_ID,
+            'unique()',
+            {
+              userId: user.$id,
+              char_remaining: DEFAULT_CHAR_REMAINING,
+            }
+          );
+          setCharRemaining(DEFAULT_CHAR_REMAINING);
+          console.log('Created new user profile:', newProfile);
+        }
+        // Use user.char_allowed if available, else default
+        setCharAllowed(user.char_allowed || DEFAULT_CHAR_ALLOWED);
+      } catch (error) {
+        console.error('Failed to fetch user profile:', {
+          message: error.message,
+          code: error.code,
+          type: error.type,
+          stack: error.stack,
+        });
+        let errorMessage = 'Failed to load character quota.';
+        if (error.code === 404) {
+          errorMessage = 'User profiles collection not found.';
+        } else if (error.code === 403) {
+          errorMessage = 'Permission denied to access user profiles.';
+        }
+        toast.error(errorMessage, {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        setCharRemaining(DEFAULT_CHAR_REMAINING);
+        setCharAllowed(DEFAULT_CHAR_ALLOWED);
+      } finally {
+        setFetchLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [user, authLoading]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -36,7 +114,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
+  if (authLoading || fetchLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -59,7 +137,7 @@ const Profile = () => {
   };
 
   // Calculate progress for char_remaining vs char_allowed
-  const progress = user.char_allowed > 0 ? (user.char_remaining / user.char_allowed) * 100 : 0;
+  const progress = charAllowed > 0 ? (charRemaining / charAllowed) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -120,11 +198,11 @@ const Profile = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Characters Allowed</p>
-              <p className="text-gray-900">{user.char_allowed || 0}</p>
+              <p className="text-gray-900">{charAllowed}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Characters Remaining</p>
-              <p className="text-gray-900">{user.char_remaining || 0}</p>
+              <p className="text-gray-900">{charRemaining}</p>
             </div>
             <div className="sm:col-span-2">
               <p className="text-sm font-medium text-gray-500">Usage Progress</p>
@@ -135,7 +213,7 @@ const Profile = () => {
                 ></div>
               </div>
               <p className="text-sm text-gray-600 mt-1">
-                {user.char_remaining || 0} / {user.char_allowed || 0} characters remaining
+                {charRemaining} / {charAllowed} characters remaining
               </p>
             </div>
             <div>

@@ -15,7 +15,8 @@ import {
   User,
   Settings,
   CreditCard,
-  HelpCircle
+  HelpCircle,
+  History
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { account } from '@/lib/appwriteConfig';
@@ -59,16 +60,14 @@ export default function Header() {
   const menuItems = [
     { href: '/', label: 'Home', icon: <Home className="w-5 h-5 mr-2" /> },
     { href: '/browse-models', label: 'Browse Models', icon: <Box className="w-5 h-5 mr-2" /> },
-    { href: '/tts', label: 'Text To Speech', icon: <AudioWaveform className="w-5 h-5 mr-2" /> },
+    { href: '/text-to-speech', label: 'Text To Speech', icon: <AudioWaveform className="w-5 h-5 mr-2" /> },
     { href: '/voice-cloning', label: 'Voice Cloning', icon: <Copy className="w-5 h-5 mr-2" /> },
     { href: '/pricing', label: 'Pricing', icon: <DollarSign className="w-5 h-5 mr-2" /> },
   ];
 
   const accountMenuItems = [
     { href: '/account', label: 'My Account', icon: <User className="w-4 h-4 mr-2" /> },
-    { href: '/settings', label: 'Settings', icon: <Settings className="w-4 h-4 mr-2" /> },
-    { href: '/billing', label: 'Billing', icon: <CreditCard className="w-4 h-4 mr-2" /> },
-    { href: '/help', label: 'Help Center', icon: <HelpCircle className="w-4 h-4 mr-2" /> },
+    { href: '/history', label: 'History', icon: <History className="w-4 h-4 mr-2" /> },
   ];
 
   const isActive = (path) => router.pathname === path;

@@ -95,7 +95,7 @@ export default function History() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
-            Audio History
+            Audio Generation History
           </h1>
           <button
             onClick={handleRefresh}

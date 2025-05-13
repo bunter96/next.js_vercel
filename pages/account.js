@@ -187,7 +187,7 @@ const Profile = () => {
             <div>
               <p className="text-sm font-medium text-gray-500">Current Plan</p>
               <p className="text-gray-900">
-                {user.current_active_plan || 'No Active Plan'}
+                {user.plan_type || 'No Active Plan'}
               </p>
             </div>
             <div>

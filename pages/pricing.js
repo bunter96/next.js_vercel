@@ -146,7 +146,7 @@ export default function PricingPage() {
           transition={{ duration: shouldReduceMotion ? 0 : 0.4 }}
           className="text-3xl sm:text-4xl font-bold mb-4"
         >
-          Choose the plan that's right for you
+          Choose the plan that&apos;s right for you
         </motion.h1>
 
         <motion.p
@@ -155,7 +155,7 @@ export default function PricingPage() {
           transition={{ delay: shouldReduceMotion ? 0 : 0.2 }}
           className="text-gray-600 mb-8 text-base sm:text-lg"
         >
-          Whether you're just getting started or scaling your business, we've got a plan for you.
+          Whether you&apos;re just getting started or scaling your business, we&apos;ve got a plan for you.
         </motion.p>
 
         <motion.div

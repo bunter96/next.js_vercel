@@ -1,5 +1,5 @@
 import { Client, Account } from 'appwrite';
-import { account } from '../../lib/appwriteConfig';
+import { account } from '../../../appwriteConfig';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

@@ -16,7 +16,8 @@ import {
   Settings,
   CreditCard,
   HelpCircle,
-  History
+  History,
+  BarChart2
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { account } from '@/lib/appwriteConfig';
@@ -68,6 +69,8 @@ export default function Header() {
   const accountMenuItems = [
     { href: '/account', label: 'My Account', icon: <User className="w-4 h-4 mr-2" /> },
     { href: '/history', label: 'History', icon: <History className="w-4 h-4 mr-2" /> },
+    { href: '/analytics', label: 'Analytics', icon: <BarChart2 className="w-4 h-4 mr-2" /> },
+    { href: '/manage-subscription', label: 'Manage Subscription', icon: <CreditCard className="w-4 h-4 mr-2" /> },
   ];
 
   const isActive = (path) => router.pathname === path;
@@ -107,20 +110,20 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation - Hidden on mobile */}
-		<nav className="hidden md:flex flex-1 justify-center space-x-2 mx-4">
-		  {menuItems.map(({ href, label, icon }) => (
-			<Link href={href} key={href} legacyBehavior>
-			  <a
-				className={`flex items-center px-4 py-1 rounded-md font-semibold text-base leading-9 text-black ${
-				  isActive(href) ? 'bg-gray-100' : 'hover:bg-gray-50'
-				}`}
-			  >
-				{icon}
-				<span className="ml-2">{label}</span>
-			  </a>
-			</Link>
-		  ))}
-		</nav>
+        <nav className="hidden md:flex flex-1 justify-center space-x-2 mx-4">
+          {menuItems.map(({ href, label, icon }) => (
+            <Link href={href} key={href} legacyBehavior>
+              <a
+                className={`flex items-center px-4 py-1 rounded-md font-semibold text-base leading-9 text-black ${
+                  isActive(href) ? 'bg-gray-100' : 'hover:bg-gray-50'
+                }`}
+              >
+                {icon}
+                <span className="ml-2">{label}</span>
+              </a>
+            </Link>
+          ))}
+        </nav>
 
         {/* Right Side - Auth/Account */}
         <div className="flex items-center space-x-2">
@@ -168,7 +171,7 @@ export default function Header() {
                   <div className="py-1 border-t border-gray-100">
                     <button
                       onClick={logout}
-                      className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50" // Changed to text-red-600
+                      className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                     >
                       <LogOut className="w-4 h-4" />
                       <span className="ml-2">Sign out</span>

@@ -1,0 +1,40 @@
+import { serverDatabases } from '../../lib/appwriteConfig';
+import { Query } from 'appwrite';
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { user_id } = req.query;
+
+  if (!user_id) {
+    return res.status(400).json({ error: 'Missing user_id' });
+  }
+
+  try {
+    const response = await serverDatabases.listDocuments(
+      '67fecfed002f909fc072', // Database ID
+      '682c300c001640914033', // Subscription collection ID
+      [Query.equal('user_id', user_id)]
+    );
+
+    if (response.documents.length === 0) {
+      return res.status(404).json({ error: 'No subscription found' });
+    }
+
+    const subscription = response.documents[0];
+
+    return res.status(200).json({
+      created_at: subscription.created_at || null,
+      current_period_start_date: subscription.current_period_start_date || null,
+      current_period_end_date: subscription.current_period_end_date || null,
+      billing_cycle: subscription.billing_cycle || 'Not available',
+      plan_name: subscription.plan_name || 'Not available',
+      status: subscription.status || 'Not available',
+    });
+  } catch (error) {
+    console.error('Error fetching subscription:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch subscription' });
+  }
+}

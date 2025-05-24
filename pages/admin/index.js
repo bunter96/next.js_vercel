@@ -1,9 +1,10 @@
-// /pages/admin/index.js
+// pages/admin/index.js
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { MdPeople } from 'react-icons/md';
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
@@ -25,16 +26,18 @@ export default function AdminDashboard() {
 
   return (
     <motion.div
-      className="max-w-6xl mx-auto px-4 py-16"
+      className="max-w-6xl mx-auto px-4 py-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link href="/admin/users">
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer">
-            <h3 className="text-xl font-bold text-blue-600 mb-2">Manage Users</h3>
+            <div className="flex items-center mb-2">
+              <MdPeople className="w-6 h-6 mr-2 text-blue-600" />
+              <h3 className="text-xl font-bold text-blue-600">Manage Users</h3>
+            </div>
             <p className="text-gray-600">View and edit user accounts.</p>
           </div>
         </Link>

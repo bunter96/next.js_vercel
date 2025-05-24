@@ -1,7 +1,7 @@
-// /context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 import { account, client, ID } from '@/lib/appwriteConfig';
 import { Databases, Permission, Role } from 'appwrite';
+import { Creem } from 'creem';
 
 const AuthContext = createContext();
 
@@ -10,56 +10,59 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
-  try {
-    let userData;
     try {
-      await account.getSession('current');
-      userData = await account.get();
-    } catch (sessionError) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
-    const databases = new Databases(client);
-    const databaseId = '67fecfed002f909fc072';
-    const collectionId = '67fecffb00075d13ade6';
-
-    let userDoc;
-    try {
-      userDoc = await databases.getDocument(databaseId, collectionId, userData.$id);
-    } catch (error) {
-      if (error.code === 404) {
-        userDoc = await databases.createDocument(
-          databaseId,
-          collectionId,
-          userData.$id,
-          {
-            userId: userData.$id,
-            name: userData.name || '',
-            user_email: userData.email || '',
-            picture: userData.prefs?.picture || '',
-            current_active_plan: '',
-            is_active: false,
-            char_allowed: 0,
-            char_remaining: 0,
-            current_plan_start_date: null,
-            current_plan_expiry_date: null,
-            active_product_id: '',
-            billing_cycle: '',
-            is_admin: false, // Add is_admin field
-          },
-          [
-            Permission.read(Role.user(userData.$id)),
-            Permission.write(Role.user(userData.$id)),
-            Permission.update(Role.user(userData.$id)),
-            Permission.delete(Role.user(userData.$id)),
-          ]
-        );
-      } else {
-        throw error;
+      let userData;
+      try {
+        await account.getSession('current');
+        userData = await account.get();
+      } catch (sessionError) {
+        setUser(null);
+        setLoading(false);
+        return;
       }
-    }
+
+      const databases = new Databases(client);
+      const databaseId = '67fecfed002f909fc072';
+      const collectionId = '67fecffb00075d13ade6';
+
+      let userDoc;
+      try {
+        userDoc = await databases.getDocument(databaseId, collectionId, userData.$id);
+      } catch (error) {
+        if (error.code === 404) {
+          userDoc = await databases.createDocument(
+            databaseId,
+            collectionId,
+            userData.$id,
+            {
+              userId: userData.$id,
+              name: userData.name || '',
+              user_email: userData.email || '',
+              picture: userData.prefs?.picture || '',
+              creem_customer_id: '', // Initialize as empty
+              current_active_plan: '',
+              is_active: false,
+              char_allowed: 0,
+              char_remaining: 0,
+              current_plan_start_date: null,
+              current_plan_expiry_date: null,
+              active_product_id: '',
+              billing_cycle: '',
+              is_admin: false,
+            },
+            [
+              Permission.read(Role.user(userData.$id)),
+              Permission.write(Role.user(userData.$id)),
+              Permission.update(Role.user(userData.$id)),
+              Permission.delete(Role.user(userData.$id)),
+            ]
+          );
+        } else {
+          throw error;
+        }
+      }
+
+
 
       // Fetch profile picture if missing
       let picture = userData.prefs?.picture || userDoc.picture;
@@ -86,7 +89,6 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // Merge data
       setUser({
         ...userData,
         prefs: { ...userData.prefs, picture },

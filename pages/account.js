@@ -2,22 +2,17 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
-import Link from 'next/link';
 import { toast } from 'react-toastify';
-import { databases, Query } from '@/lib/appwriteConfig';
-
-const DATABASE_ID = '67fecfed002f909fc072';
-const USER_PROFILES_COLLECTION_ID = '67fecffb00075d13ade6'; // TODO: Replace with actual ID
-const DEFAULT_CHAR_REMAINING = 5000;
-const DEFAULT_CHAR_ALLOWED = 5000; // Adjust based on actual plan data
+import { account } from '@/lib/appwriteConfig';
 
 const Profile = () => {
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [imageSrc, setImageSrc] = useState(user?.prefs?.picture || '/default-avatar.png');
-  const [charRemaining, setCharRemaining] = useState(DEFAULT_CHAR_REMAINING);
-  const [charAllowed, setCharAllowed] = useState(DEFAULT_CHAR_ALLOWED);
+  const [sessions, setSessions] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -31,79 +26,102 @@ const Profile = () => {
     setImageSrc(user?.prefs?.picture || '/default-avatar.png');
   }, [user]);
 
-  // Fetch char_remaining from user_profiles
+  // Fetch all sessions
   useEffect(() => {
     if (!user || authLoading) return;
 
-    const fetchProfile = async () => {
+    const fetchSessions = async () => {
       setFetchLoading(true);
       try {
-        console.log('Fetching profile for userId:', user.$id);
-        const response = await databases.listDocuments(
-          DATABASE_ID,
-          USER_PROFILES_COLLECTION_ID,
-          [Query.equal('userId', user.$id)]
-        );
-        console.log('Profile fetch response:', {
-          documentCount: response.documents.length,
-          documents: response.documents,
+        const sessionData = await account.listSessions();
+        console.log('Sessions fetch response:', sessionData);
+        setSessions(sessionData.sessions);
+      } catch (err) {
+        console.error('Failed to fetch sessions:', {
+          message: err.message,
+          code: err.code,
+          type: err.type,
+          stack: err.stack,
         });
-
-        const profile = response.documents[0];
-        if (profile) {
-          const charRemainingValue = Number.isInteger(profile.char_remaining)
-            ? profile.char_remaining
-            : DEFAULT_CHAR_REMAINING;
-          setCharRemaining(charRemainingValue);
-          console.log('Fetched char_remaining:', charRemainingValue);
-        } else {
-          console.warn('No user profile found for userId:', user.$id);
-          // Optionally create a new profile to match text-to-speech.js
-          const newProfile = await databases.createDocument(
-            DATABASE_ID,
-            USER_PROFILES_COLLECTION_ID,
-            'unique()',
-            {
-              userId: user.$id,
-              char_remaining: DEFAULT_CHAR_REMAINING,
-            }
-          );
-          setCharRemaining(DEFAULT_CHAR_REMAINING);
-          console.log('Created new user profile:', newProfile);
+        let errorMessage = 'Failed to load session details.';
+        if (err.code === 404) {
+          errorMessage = 'No sessions found.';
+        } else if (err.code === 403) {
+          errorMessage = 'Permission denied to access session data.';
         }
-        // Use user.char_allowed if available, else default
-        setCharAllowed(user.char_allowed || DEFAULT_CHAR_ALLOWED);
-      } catch (error) {
-        console.error('Failed to fetch user profile:', {
-          message: error.message,
-          code: error.code,
-          type: error.type,
-          stack: error.stack,
-        });
-        let errorMessage = 'Failed to load character quota.';
-        if (error.code === 404) {
-          errorMessage = 'User profiles collection not found.';
-        } else if (error.code === 403) {
-          errorMessage = 'Permission denied to access user profiles.';
-        }
+        setError(errorMessage);
         toast.error(errorMessage, {
           position: 'top-right',
           autoClose: 3000,
         });
-        setCharRemaining(DEFAULT_CHAR_REMAINING);
-        setCharAllowed(DEFAULT_CHAR_ALLOWED);
       } finally {
         setFetchLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchSessions();
   }, [user, authLoading]);
 
-  // Handle logout
+  // Handle session logout
+  const handleSessionLogout = async (sessionId) => {
+    try {
+      await account.deleteSession(sessionId);
+      setSessions(sessions.filter(session => session.$id !== sessionId));
+      toast.success('Session ended successfully.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } catch (err) {
+      console.error('Failed to delete session:', err);
+      toast.error('Failed to end session. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+
+    try {
+      console.log('Initiating account deletion for user:', user.$id);
+      const response = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user.$id }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message, {
+          position: 'top-right',
+          autoClose: 1000, // Shorten toast duration for faster transition
+        });
+        // Delay the refresh slightly to ensure the toast is visible
+        setTimeout(() => {
+          window.location.href = 'http://localhost:3000/';
+        }, 1000); // Match the toast duration
+      } else {
+        throw new Error(result.message || 'Failed to delete account.');
+      }
+    } catch (err) {
+      console.error('Failed to delete account - Client-side error:', err);
+      toast.error(err.message || 'Failed to delete account. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Handle account logout
   const handleLogout = async () => {
     try {
-      await logout();
+      await account.deleteSession('current');
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -112,6 +130,17 @@ const Profile = () => {
         autoClose: 3000,
       });
     }
+  };
+
+  // Format date
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   if (authLoading || fetchLoading) {
@@ -126,22 +155,9 @@ const Profile = () => {
     return null; // Redirect will handle unauthenticated state
   }
 
-  // Format dates
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  // Calculate progress for char_remaining vs char_allowed
-  const progress = charAllowed > 0 ? (charRemaining / charAllowed) * 100 : 0;
-
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl w-full space-y-8">
+      <div className="max-w-4xl w-full space-y-6">
         {/* Profile Card */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-32"></div>
@@ -180,67 +196,77 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Subscription Details */}
+        {/* Session Details */}
         <div className="bg-white shadow-xl rounded-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Subscription Details</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Current Plan</p>
-              <p className="text-gray-900">
-                {user.plan_type || 'No Active Plan'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Status</p>
-              <p className="text-gray-900">
-                {user.is_active ? 'Active' : 'Inactive'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Characters Allowed</p>
-              <p className="text-gray-900">{charAllowed}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Characters Remaining</p>
-              <p className="text-gray-900">{charRemaining}</p>
-            </div>
-            <div className="sm:col-span-2">
-              <p className="text-sm font-medium text-gray-500">Usage Progress</p>
-              <div className="mt-1 w-full bg-gray-200 rounded-full h-4">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">Active Sessions</h3>
+          {error ? (
+            <p className="text-red-600 text-center">{error}</p>
+          ) : sessions.length === 0 ? (
+            <p className="text-gray-600 text-center">No active sessions found.</p>
+          ) : (
+            <div className="space-y-2">
+              {sessions.map((session) => (
                 <div
-                  className="bg-blue-500 h-4 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                ></div>
+                  key={session.$id}
+                  className="flex items-center justify-between p-3 border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex flex-wrap items-center gap-3 text-sm">
+                    <span className="text-gray-900 truncate">
+                      {formatDate(session.$createdAt)}
+                    </span>
+                    <span className="text-gray-600 truncate">
+                      {session.deviceName || 'Unknown Device'}
+                    </span>
+                    <span className="text-gray-600 truncate">
+                      {session.osName || 'Unknown OS'} {session.osVersion || ''}
+                    </span>
+                    <span className="text-gray-600 truncate">
+                      {session.ip || 'N/A'}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        session.current
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {session.current ? 'Current' : 'Inactive'}
+                    </span>
+                  </div>
+                  {!session.current && (
+                    <button
+                      onClick={() => handleSessionLogout(session.$id)}
+                      className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    >
+                      Log Out
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Account Deletion */}
+        <div className="bg-white shadow-xl rounded-lg p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">Account Deletion</h3>
+          <p className="text-gray-600 mb-4">
+            Deleting your account will permanently remove all associated data, including your profile, sessions, audio generations, and cloned voices. This action cannot be undone.
+          </p>
+          <button
+            onClick={handleDeleteAccount}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <div className="flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-2">Deleting...</span>
               </div>
-              <p className="text-sm text-gray-600 mt-1">
-                {charRemaining} / {charAllowed} characters remaining
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Plan Start Date</p>
-              <p className="text-gray-900">{formatDate(user.current_plan_start_date)}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Plan Expiry Date</p>
-              <p className="text-gray-900">{formatDate(user.current_plan_expiry_date)}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Product ID</p>
-              <p className="text-gray-900">{user.active_product_id || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Billing Cycle</p>
-              <p className="text-gray-900">{user.billing_cycle || 'N/A'}</p>
-            </div>
-          </div>
-          <div className="mt-6">
-            <Link
-              href="/plans"
-              className="inline-block px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
-            >
-              Manage Subscription
-            </Link>
-          </div>
+            ) : (
+              'Delete Account'
+            )}
+          </button>
         </div>
       </div>
     </div>

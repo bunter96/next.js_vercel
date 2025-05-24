@@ -197,17 +197,19 @@ export default function PricingPage() {
                 aria-describedby={`plan-${plan.title}-description`}
               >
                 <div className="relative w-full text-center">
-                  <h2 className="text-xl font-semibold mb-2">{plan.title}</h2>
-                  {plan.featured && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
-                      Recommended
-                    </span>
-                  )}
-                  {isSubscribed && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 ml-2 px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
-                      Active
-                    </span>
-                  )}
+                  <div className="flex items-center justify-center gap-2">
+                    {isSubscribed && (
+                      <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+                        Active
+                      </span>
+                    )}
+                    <h2 className="text-xl font-semibold mb-2">{plan.title}</h2>
+                    {plan.featured && (
+                      <span className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
+                        Recommended
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-3xl font-bold mb-1">
                   {yearly ? plan.yearly : plan.monthly}

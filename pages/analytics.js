@@ -5,6 +5,7 @@ import { databases, Query } from '@/lib/appwriteConfig';
 import { Home, BarChart2 } from 'lucide-react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import Link from 'next/link';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
@@ -209,10 +210,10 @@ export default function Analytics() {
           <BarChart2 className="w-8 h-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">Your Analytics</h1>
         </div>
-        <a href="/" className="flex items-center text-blue-600 hover:text-blue-800">
+        <Link href="/" className="flex items-center text-blue-600 hover:text-blue-800">
           <Home className="w-5 h-5 mr-2" />
           Back to Home
-        </a>
+        </Link>
       </div>
 
       {!hasActivityData && !hasUsageData ? (

@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { account } from '@/lib/appwriteConfig';
+import Link from 'next/link';
 import Head from 'next/head';
 
 const Login = () => {
@@ -232,12 +233,12 @@ const Login = () => {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <a
-                      href="/create-account"
-                      className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Create an account
-                    </a>
+					<Link
+					  href="/create-account"
+					  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					>
+					  Create an account
+					</Link>
                   </div>
                 </div>
               </div>

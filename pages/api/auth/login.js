@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     const successRedirect = referer && referer.includes('https://app.lowcosttts.online')
       ? referer.replace(/\/login$/, '/account') // Redirect to /account instead of /login
       : 'https://app.lowcosttts.online/account';
-    const failureRedirect = 'http://localhost:3000/login';
+    const failureRedirect = 'https://app.lowcosttts.online';
 
     // Create OAuth2 session (returns a string URL)
     const loginUrl = await account.createOAuth2Session(

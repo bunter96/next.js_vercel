@@ -1,5 +1,6 @@
 // pages/index.js
 import { motion } from "framer-motion";
+import Link from 'next/link';
 import {
   ShieldCheckIcon,
   PresentationChartLineIcon,
@@ -418,12 +419,12 @@ export default function Home() {
 			  whileInView={{ opacity: 1, y: 0 }}
 			  viewport={{ once: true }}
 			>
-			  <a
-				href="/pricing"
-				className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
-			  >
-				Go to pricing page
-			  </a>
+			<Link
+			  href="/pricing"
+			  className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+			>
+			  Go to pricing page
+			</Link>
 			</motion.div>
 		  </div>
 		</section>

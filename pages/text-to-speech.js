@@ -6,11 +6,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 
-const DATABASE_ID = '67fecfed002f909fc072';
-const USER_MODELS_COLLECTION_ID = '680431be00081ea103d1';
-const BROWSE_MODELS_COLLECTION_ID = '680d683b000797390037';
-const HISTORY_COLLECTION_ID = '680e9bf90014579d3f5b'; // TODO: Replace with actual ID
-const USER_PROFILES_COLLECTION_ID = '67fecffb00075d13ade6'; // TODO: Replace with actual ID
+const HISTORY_COLLECTION_ID = '680e9bf90014579d3f5b';
+const USER_PROFILES_COLLECTION_ID = '67fecffb00075d13ade6';
 const STORAGE_BUCKET_ID = '680eaa3400394d8108bc';
 const MAX_CHARS = 1000;
 const BACKEND_URL = '/api/tts';
@@ -31,8 +28,8 @@ const MyModelsTabContent = ({ onSelectModel }) => {
       }
       try {
         const response = await databases.listDocuments(
-          DATABASE_ID,
-          USER_MODELS_COLLECTION_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_USER_MODELS_COLLECTION_ID,
           [Query.equal('userId', user.$id)]
         );
         setModels(response.documents);
@@ -64,27 +61,40 @@ const MyModelsTabContent = ({ onSelectModel }) => {
   return (
     <div className="divide-y divide-gray-200">
       {models.length === 0 ? (
-        <p className="text-gray-500 text-center py-4">No models found. Create one in the Voice Cloning Studio.</p>
+        <div className="py-8 text-center">
+          <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No models found</h3>
+          <p className="mt-1 text-sm text-gray-500">Create one in the Voice Cloning Studio.</p>
+        </div>
       ) : (
         models.map((modelItem) => (
           <div
             key={modelItem.fishAudioModelId}
-            className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 transition-all duration-200 hover:scale-[1.01]"
+            className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 transition-all duration-200 cursor-pointer"
+            onClick={() => onSelectModel(modelItem)}
           >
-            <div className="flex items-center space-x-6">
-              <img
-                src={modelItem.coverImage || '/placeholder.png'}
-                alt={modelItem.title}
-                className="w-12 h-12 rounded-full object-cover border border-gray-200 bg-gray-100"
-              />
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <img
+                  src={modelItem.coverImage || '/placeholder.png'}
+                  alt={modelItem.title}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100"
+                />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white"></div>
+              </div>
               <div>
                 <h3 className="font-medium text-gray-800">{modelItem.title}</h3>
-                <p className="text-sm text-gray-500">ID: {modelItem.fishAudioModelId}</p>
+                <p className="text-xs text-gray-500">ID: {modelItem.fishAudioModelId}</p>
               </div>
             </div>
             <button
-              onClick={() => onSelectModel(modelItem)}
-              className="px-3 py-1.5 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 shadow-sm transition-all duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectModel(modelItem);
+              }}
+              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all duration-200"
             >
               Use Model
             </button>
@@ -105,8 +115,8 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
     const getModels = async () => {
       try {
         const response = await databases.listDocuments(
-          DATABASE_ID,
-          BROWSE_MODELS_COLLECTION_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_BROWSE_MODELS_COLLECTION_ID,
           [Query.orderDesc('$createdAt')]
         );
         setModels(response.documents);
@@ -142,39 +152,59 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
   return (
     <div>
       <div className="px-6 py-4">
-        <input
-          type="text"
-          placeholder="Search public models by name..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Search public models by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+          />
+        </div>
       </div>
       <div className="divide-y divide-gray-200">
         {filteredModels.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">
-            {searchQuery ? 'No models found matching your search.' : 'No public models available.'}
-          </p>
+          <div className="py-8 text-center">
+            <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No models found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchQuery ? 'No models match your search.' : 'No public models available.'}
+            </p>
+          </div>
         ) : (
           filteredModels.map((modelItem) => (
             <div
               key={modelItem.fish_model_id}
-              className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 transition-all duration-200 hover:scale-[1.01]"
+              className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 transition-all duration-200 cursor-pointer"
+              onClick={() => onSelectModel(modelItem)}
             >
-              <div className="flex items-center space-x-6">
-                <img
-                  src={modelItem.image_url || '/placeholder.png'}
-                  alt={modelItem.title}
-                  className="w-12 h-12 rounded-full object-cover border border-gray-200 bg-gray-100"
-                />
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <img
+                    src={modelItem.image_url || '/placeholder.png'}
+                    alt={modelItem.title}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                </div>
                 <div>
                   <h3 className="font-medium text-gray-800">{modelItem.title}</h3>
-                  <p className="text-sm text-gray-500">ID: {modelItem.fish_model_id}</p>
+                  <p className="text-xs text-gray-500">ID: {modelItem.fish_model_id}</p>
                 </div>
               </div>
               <button
-                onClick={() => onSelectModel(modelItem)}
-                className="px-3 py-1.5 text-sm bg-indigo-500 text-white rounded-md hover:bg-indigo-600 shadow-sm transition-all duration-200"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectModel(modelItem);
+                }}
+                className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all duration-200"
               >
                 Use Model
               </button>
@@ -201,7 +231,6 @@ export default function TextToSpeech() {
   // Clear audioList on mount to avoid outdated entries
   useEffect(() => {
     setAudioList([]);
-    console.log('audioList cleared on mount');
     return () => {
       // Revoke blob URLs on unmount
       audioList.forEach((audio) => {
@@ -232,17 +261,16 @@ export default function TextToSpeech() {
       let charRemaining;
       try {
         const profileResponse = await databases.listDocuments(
-          DATABASE_ID,
-          USER_PROFILES_COLLECTION_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
           [Query.equal('userId', user.$id)]
         );
         profile = profileResponse.documents[0];
 
         if (!profile) {
-          console.log('No user profile found, creating new one for user:', user.$id);
           profile = await databases.createDocument(
-            DATABASE_ID,
-            USER_PROFILES_COLLECTION_ID,
+            process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+            process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
             'unique()',
             {
               userId: user.$id,
@@ -250,21 +278,13 @@ export default function TextToSpeech() {
             }
           );
           charRemaining = DEFAULT_CHAR_REMAINING;
-          console.log('Created new user profile:', profile);
         } else {
           charRemaining = profile.char_remaining;
           if (!Number.isInteger(charRemaining)) {
-            console.warn('Invalid char_remaining, resetting to default:', charRemaining);
             charRemaining = DEFAULT_CHAR_REMAINING;
           }
         }
       } catch (profileError) {
-        console.error('Profile fetch error:', {
-          message: profileError.message,
-          code: profileError.code,
-          type: profileError.type,
-          stack: profileError.stack,
-        });
         toast.error(`Failed to fetch character quota: ${profileError.message}`);
         setLoading(false);
         return;
@@ -273,10 +293,6 @@ export default function TextToSpeech() {
       // Validate sufficient characters
       const textLength = text.length;
       if (textLength > charRemaining) {
-        console.log('Insufficient character quota:', {
-          textLength,
-          charRemaining,
-        });
         toast.error(
           <>
             Insufficient character quota ({textLength} characters needed, {charRemaining} available).{' '}
@@ -284,7 +300,7 @@ export default function TextToSpeech() {
               className="underline cursor-pointer"
               onClick={() => router.push('/plans')}
             >
-              
+              Upgrade your plan
             </span>
             .
           </>,
@@ -307,23 +323,12 @@ export default function TextToSpeech() {
         }),
       });
 
-      console.log('API response:', {
-        status: response.status,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries()),
-      });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error generating speech');
       }
 
       const audioBlob = await response.blob();
-      console.log('Audio blob:', {
-        type: audioBlob.type,
-        size: audioBlob.size,
-        isBlob: audioBlob instanceof Blob,
-      });
 
       // Validate audioBlob
       if (!audioBlob || !(audioBlob instanceof Blob)) {
@@ -340,28 +345,15 @@ export default function TextToSpeech() {
       try {
         const newCharRemaining = charRemaining - textLength;
         await databases.updateDocument(
-          DATABASE_ID,
-          USER_PROFILES_COLLECTION_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
           profile.$id,
           {
             char_remaining: newCharRemaining,
           }
         );
-        console.log('Character deduction:', {
-          userId: user.$id,
-          textLength,
-          charRemaining,
-          newCharRemaining,
-        });
       } catch (deductionError) {
-        console.error('Character deduction error:', {
-          message: deductionError.message,
-          code: deductionError.code,
-          type: deductionError.type,
-          stack: deductionError.stack,
-        });
         toast.error(`Failed to update character quota: ${deductionError.message}`);
-        // Continue with audio generation
       }
 
       const newAudioUrl = URL.createObjectURL(audioBlob);
@@ -376,16 +368,11 @@ export default function TextToSpeech() {
           },
           ...prev,
         ];
-        console.log('Updated audioList:', newList);
         return newList;
       });
 
       toast.success('Speech generated successfully!');
     } catch (error) {
-      console.error('Generate speech error:', {
-        message: error.message,
-        stack: error.stack,
-      });
       toast.error(`Failed to generate speech: ${error.message}`);
     } finally {
       setLoading(false);
@@ -399,22 +386,12 @@ export default function TextToSpeech() {
     }
 
     if (savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id)) {
-      return; // Prevent duplicate saves or saving while in progress
+      return;
     }
-
-    console.log('Saving audio:', {
-      id: audio.id,
-      timestamp: audio.timestamp,
-      url: audio.url,
-      hasBlob: !!audio.blob,
-      blobType: audio.blob?.type,
-      blobSize: audio.blob?.size,
-    });
 
     setSavingAudioIds((prev) => new Set([...prev, audio.id]));
 
     try {
-      // Validate audio blob
       if (!audio.blob) {
         throw new Error('Audio blob is missing');
       }
@@ -425,31 +402,21 @@ export default function TextToSpeech() {
         throw new Error('Audio blob is empty');
       }
 
-      // Convert blob to File object
       const audioFile = new File([audio.blob], `speech-${audio.id}.mp3`, {
         type: 'audio/mpeg',
       });
-      console.log('Audio file created:', {
-        name: audioFile.name,
-        type: audioFile.type,
-        size: audioFile.size,
-      });
 
-      // Upload audio to Appwrite Storage
       const file = await storage.createFile(
-        STORAGE_BUCKET_ID,
+        process.env.NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID,
         'unique()',
         audioFile
       );
-      console.log('Storage file created:', file);
 
-      // Generate view URL
-      const audioUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID}/files/${file.$id}/view?project=67fd8405001a20b5ad34`;
+      const audioUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID}/files/${file.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`;
 
-      // Save to history collection
-      const document = await databases.createDocument(
-        DATABASE_ID,
-        HISTORY_COLLECTION_ID,
+      await databases.createDocument(
+        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        process.env.NEXT_PUBLIC_APPWRITE_HISTORY_COLLECTION_ID,
         'unique()',
         {
           created_at: audio.timestamp,
@@ -457,17 +424,10 @@ export default function TextToSpeech() {
           userId: user.$id,
         }
       );
-      console.log('History document created:', document);
 
       setSavedAudioIds((prev) => new Set([...prev, audio.id]));
       toast.success('Audio saved successfully!');
     } catch (error) {
-      console.error('Save audio error:', {
-        message: error.message,
-        code: error.code,
-        type: error.type,
-        stack: error.stack,
-      });
       if (error.message.includes('blob') || error.message.includes('size')) {
         toast.error('Failed to save audio: Invalid or missing audio file.');
       } else if (error.code === 404) {
@@ -488,26 +448,36 @@ export default function TextToSpeech() {
     }
   };
 
+  const handleModelSelect = (selectedModel) => {
+    setModel(selectedModel);
+    setIsModelDialogOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-center mb-12 text-gray-800 tracking-tight">
+        <h1 className="text-4xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight">
           Text to Speech Studio
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Section */}
           <div className="flex-1">
-            <div className="bg-white rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl">
+            <div className="bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl border border-gray-100">
               {/* Text Input Section */}
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4 text-gray-800">Enter Text</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Enter Text
+                </h2>
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
-                  className="w-full h-48 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-200"
-                  placeholder="Enter text to convert to speech..."
+                  className="w-full h-48 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-200 bg-gray-50"
+                  placeholder="Type or paste your text here..."
                 />
                 <div className="flex justify-between items-center mt-3">
                   <button
@@ -529,31 +499,48 @@ export default function TextToSpeech() {
 
               {/* Model Selection */}
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4 text-gray-800">Select Voice Model</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                  Select Voice Model
+                </h2>
                 {model ? (
-                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50 h-14">
+                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-gray-50 h-16 transition-all hover:bg-indigo-50">
                     <div className="flex items-center space-x-3">
-                      <img
-                        src={model.coverImage || model.image_url || '/placeholder.png'}
-                        alt={model.title}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                      />
-                      <span className="font-medium text-gray-800">{model.title}</span>
+                      <div className="relative">
+                        <img
+                          src={model.coverImage || model.image_url || '/placeholder.png'}
+                          alt={model.title}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-indigo-200"
+                        />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full border-2 border-white"></div>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-800">{model.title}</span>
+                        <p className="text-xs text-gray-500">ID: {model.fishAudioModelId || model.fish_model_id}</p>
+                      </div>
                     </div>
                     <button
                       onClick={() => setModel(null)}
-                      className="text-red-600 text-2xl hover:text-red-700 transition-colors duration-200"
+                      className="p-1 text-gray-400 hover:text-red-500 rounded-full transition-colors duration-200"
                     >
-                      ×
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => setIsModelDialogOpen(true)}
-                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200 h-14"
+                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200 h-16 group"
                   >
                     <span className="text-gray-600">Select a voice model</span>
-                    <span className="text-indigo-600">→</span>
+                    <span className="text-indigo-600 group-hover:translate-x-1 transition-transform duration-200">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
                   </button>
                 )}
               </div>
@@ -562,31 +549,40 @@ export default function TextToSpeech() {
               <button
                 onClick={handleConvert}
                 disabled={loading || !text || !model}
-                className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-colors duration-200"
+                className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                {loading && (
-                  <svg
-                    className="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
+                {loading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m4.242-12.728a9 9 0 012.728 2.728" />
+                    </svg>
+                    <span>Generate Speech</span>
+                  </>
                 )}
-                <span>{loading ? 'Generating Speech...' : 'Generate Speech'}</span>
               </button>
             </div>
           </div>
@@ -594,33 +590,68 @@ export default function TextToSpeech() {
           {/* Right Section - Audio History */}
           <div className="flex-1">
             <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">Audio History</h2>
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
               {audioList.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No audio generated yet.</p>
+                <div className="bg-white/50 backdrop-blur-sm p-8 rounded-xl border border-gray-200 text-center">
+                  <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                  </svg>
+                  <h3 className="mt-4 text-lg font-medium text-gray-700">No audio generated yet</h3>
+                  <p className="mt-1 text-gray-500">Convert some text to speech to see results here</p>
+                </div>
               ) : (
                 audioList.map((audio) => (
                   <div
                     key={audio.id}
-                    className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                    className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all duration-300"
                   >
-                    <p className="text-sm text-gray-500 mb-3">{audio.timestamp}</p>
-                    <audio controls className="w-full mb-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <p className="text-sm text-gray-500 flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {audio.timestamp}
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSave(audio)}
+                          disabled={savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id) || !audio.blob}
+                          className={`p-1.5 rounded-lg ${savedAudioIds.has(audio.id) 
+                            ? 'bg-green-100 text-green-600' 
+                            : savingAudioIds.has(audio.id)
+                              ? 'bg-blue-100 text-blue-600'
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                          } transition-colors duration-200`}
+                        >
+                          {savingAudioIds.has(audio.id) ? (
+                            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                          ) : savedAudioIds.has(audio.id) ? (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <audio controls className="w-full mb-4 rounded-lg">
                       <source src={audio.url} type="audio/mpeg" />
                     </audio>
-                    <div className="flex gap-4 justify-center">
-                      <button
-                        onClick={() => handleSave(audio)}
-                        disabled={savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id) || !audio.blob}
-                        className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                      >
-                        {savingAudioIds.has(audio.id) ? 'Saving' : savedAudioIds.has(audio.id) ? 'Saved' : 'Save'}
-                      </button>
+                    
+                    <div className="flex gap-3">
                       <a
                         href={audio.url}
                         download={`speech-${audio.id}.mp3`}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition-colors duration-200"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
                       >
-                        <FiDownload /> Download
+                        <FiDownload className="w-4 h-4" />
+                        Download
                       </a>
                     </div>
                   </div>
@@ -632,58 +663,46 @@ export default function TextToSpeech() {
 
         {/* Model Selection Modal */}
         {isModelDialogOpen && (
-          <div className="fixed inset-x-0 top-0 bottom-0 flex items-center justify-center p-4 my-8 z-50 animate-fade-in">
-            <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[80vh] min-h-[400px] shadow-2xl flex flex-col">
-              <div className="p-6 border-b border-gray-200">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[80vh] min-h-[400px] shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-800">Select a Voice Model</h3>
+                <button
+                  onClick={() => setIsModelDialogOpen(false)}
+                  className="p-1 text-gray-400 hover:text-gray-600 rounded-full transition-colors duration-200"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
 
-              <div className="p-6 flex-1 overflow-y-auto">
-                <div className="flex border-b border-gray-200 mb-6">
+              <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex border-b border-gray-200">
                   <button
                     onClick={() => setTabValue(0)}
-                    className={`px-4 py-2 font-semibold tracking-wide ${
-                      tabValue === 0 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-600'
-                    }`}
+                    className={`flex-1 px-4 py-3 font-medium text-center ${tabValue === 0 
+                      ? 'text-indigo-600 border-b-2 border-indigo-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                    } transition-colors duration-200`}
                   >
                     My Models
                   </button>
                   <button
                     onClick={() => setTabValue(1)}
-                    className={`px-4 py-2 font-semibold tracking-wide ${
-                      tabValue === 1 ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-600'
-                    }`}
+                    className={`flex-1 px-4 py-3 font-medium text-center ${tabValue === 1 
+                      ? 'text-indigo-600 border-b-2 border-indigo-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                    } transition-colors duration-200`}
                   >
-                    Browse Models
+                    Public Models
                   </button>
                 </div>
 
-                {tabValue === 0 && (
-                  <MyModelsTabContent
-                    onSelectModel={(model) => {
-                      setModel(model);
-                      setIsModelDialogOpen(false);
-                    }}
-                  />
-                )}
-
-                {tabValue === 1 && (
-                  <BrowseModelsTabContent
-                    onSelectModel={(model) => {
-                      setModel(model);
-                      setIsModelDialogOpen(false);
-                    }}
-                  />
-                )}
-              </div>
-
-              <div className="p-6 border-t border-gray-200 flex justify-end">
-                <button
-                  onClick={() => setIsModelDialogOpen(false)}
-                  className="px-4 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Close
-                </button>
+                <div className="flex-1 overflow-y-auto">
+                  {tabValue === 0 && <MyModelsTabContent onSelectModel={handleModelSelect} />}
+                  {tabValue === 1 && <BrowseModelsTabContent onSelectModel={handleModelSelect} />}
+                </div>
               </div>
             </div>
           </div>

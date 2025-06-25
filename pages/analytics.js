@@ -41,8 +41,8 @@ export default function Analytics() {
 
         // Fetch user profile for char_allowed and char_remaining
         const profileResponse = await databases.getDocument(
-          '67fecfed002f909fc072',
-          '67fecffb00075d13ade6',
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID, // database ID
+          process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID, // user_profiles collection ID
           user.$id
         );
         const charAllowed = profileResponse.char_allowed || 0;
@@ -51,8 +51,8 @@ export default function Analytics() {
 
         // Fetch audio generations from History collection
         const historyResponse = await databases.listDocuments(
-          '67fecfed002f909fc072',
-          '680e9bf90014579d3f5b', // Replace with actual History collection ID
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_HISTORY_COLLECTION_ID, // History collection ID
           [
             Query.equal('userId', user.$id),
             Query.greaterThan('$createdAt', startDate.toISOString()),
@@ -72,8 +72,8 @@ export default function Analytics() {
 
         // Fetch cloned voices from user_models collection
         const modelsResponse = await databases.listDocuments(
-          '67fecfed002f909fc072',
-          '680431be00081ea103d1', // Replace with actual user_models collection ID
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_USER_MODELS_COLLECTION_ID, // user_models collection ID
           [
             Query.equal('userId', user.$id),
             Query.greaterThan('$createdAt', startDate.toISOString()),
@@ -223,38 +223,38 @@ export default function Analytics() {
       ) : (
         <div className="flex flex-col gap-6">
           {/* Audio Generations Chart */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Audio Generations</h2>
-            {analyticsData.audioGenerations.every(count => count === 0) ? (
-              <p className="text-gray-600 text-center">No audio generations in the last 30 days.</p>
-            ) : (
-              <>
-                <div className="h-64">
-                  <Bar data={audioChartData} options={chartOptions} />
-                </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  Total: {analyticsData.audioGenerations.reduce((sum, count) => sum + count, 0)} audio generations
-                </p>
-              </>
-            )}
-          </div>
+			<div className="bg-white shadow rounded-lg p-6">
+			  <h2 className="text-xl font-semibold text-gray-800 mb-4">Audio Generations</h2>
+			  {analyticsData.audioGenerations.every(count => count === 0) ? (
+				<p className="text-gray-600 text-center">No audio generations in the last 30 days.</p>
+			  ) : (
+				<>
+				  <div className="h-64 flex items-center justify-center">
+					<Bar data={audioChartData} options={chartOptions} />
+				  </div>
+				  <p className="text-sm text-gray-600 mt-2">
+					Total: {analyticsData.audioGenerations.reduce((sum, count) => sum + count, 0)} audio generations
+				  </p>
+				</>
+			  )}
+			</div>
 
           {/* Voices Cloned Chart */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Voices Cloned</h2>
-            {analyticsData.voicesCloned.every(count => count === 0) ? (
-              <p className="text-gray-600 text-center">No voices cloned in the last 30 days.</p>
-            ) : (
-              <>
-                <div className="h-64">
-                  <Bar data={voicesChartData} options={chartOptions} />
-                </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  Total: {analyticsData.voicesCloned.reduce((sum, count) => sum + count, 0)} voices cloned
-                </p>
-              </>
-            )}
-          </div>
+			<div className="bg-white shadow rounded-lg p-6">
+			  <h2 className="text-xl font-semibold text-gray-800 mb-4">Voices Cloned</h2>
+			  {analyticsData.voicesCloned.every(count => count === 0) ? (
+				<p className="text-gray-600 text-center">No voices cloned in the last 30 days.</p>
+			  ) : (
+				<>
+				  <div className="h-64 flex items-center justify-center">
+					<Bar data={voicesChartData} options={chartOptions} />
+				  </div>
+				  <p className="text-sm text-gray-600 mt-2">
+					Total: {analyticsData.voicesCloned.reduce((sum, count) => sum + count, 0)} voices cloned
+				  </p>
+				</>
+			  )}
+			</div>
 
           {/* Usage Progress Chart */}
           <div className="bg-white shadow rounded-lg p-6">

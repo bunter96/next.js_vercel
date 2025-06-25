@@ -3,9 +3,6 @@ import { useAuth } from '@/context/AuthContext';
 import { databases, Query } from '@/lib/appwriteConfig';
 import { FiDownload } from 'react-icons/fi';
 
-const DATABASE_ID = '67fecfed002f909fc072';
-const HISTORY_COLLECTION_ID = '680e9bf90014579d3f5b'; // Replace with actual ID
-
 export default function History() {
   const { user } = useAuth();
   const [audios, setAudios] = useState([]);
@@ -23,8 +20,8 @@ export default function History() {
 
       try {
         const response = await databases.listDocuments(
-          DATABASE_ID,
-          HISTORY_COLLECTION_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+          process.env.NEXT_PUBLIC_APPWRITE_HISTORY_COLLECTION_ID,
           [
             Query.equal('userId', user.$id),
             Query.orderDesc('$createdAt'),

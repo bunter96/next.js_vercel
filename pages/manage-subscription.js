@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function ManageSubscription() {
-  const { user, loading, refreshUser } = useAuth(); // Assuming useAuth provides a refreshUser method
+  const { user, loading, refreshUser } = useAuth();
   const [portalUrl, setPortalUrl] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [apiError, setApiError] = useState(null);

@@ -3,74 +3,46 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { account } from '@/lib/appwriteConfig';
+import { account, ID } from '@/lib/appwriteConfig';
 import Head from 'next/head';
 
-const Login = () => {
+const CreateAccount = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { verify } = router.query; // Check for verify=true
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [activeTab, setActiveTab] = useState('google');
+  const [isCreating, setIsCreating] = useState(false);
+  const [activeTab, setActiveTab] = useState('email');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
-  // Show verification prompt if verify=true
-  useEffect(() => {
-    if (verify === 'true') {
-      toast.info('Please log in to complete email verification.', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: true,
-      });
-    }
-  }, [verify]);
-
-  // Redirect to /account if authenticated
+  // Redirect to /account if already authenticated
   useEffect(() => {
     if (!loading && user) {
       router.push('/account');
     }
   }, [user, loading, router]);
 
-  const handleGoogleSignIn = async () => {
-    setIsSigningIn(true);
-    try {
-      // Clear existing sessions
-      try {
-        const sessions = await account.listSessions();
-        await Promise.all(
-          sessions.sessions.map((session) => account.deleteSession(session.$id))
-        );
-      } catch (error) {
-        console.warn('No sessions to clear:', error);
-      }
-      window.location.href = '/api/auth/login';
-    } catch (error) {
-      console.error('Error initiating Google login:', error);
-      setIsSigningIn(false);
-      toast.error('Failed to start Google login. Please try again.', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: true,
-      });
-    }
-  };
-
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
 
-  const handleEmailSignIn = async (e) => {
+  const handleCreateAccount = async (e) => {
     e.preventDefault();
-    setErrors({ email: '', password: '' });
-    setIsSigningIn(true);
+    setErrors({ name: '', email: '', password: '' });
+    setIsCreating(true);
 
     // Client-side validation
     let hasError = false;
+    if (!name.trim()) {
+      setErrors((prev) => ({ ...prev, name: 'Name is required' }));
+      hasError = true;
+    } else if (name.trim().length < 2) {
+      setErrors((prev) => ({ ...prev, name: 'Name must be at least 2 characters' }));
+      hasError = true;
+    }
     if (!email) {
       setErrors((prev) => ({ ...prev, email: 'Email is required' }));
       hasError = true;
@@ -87,50 +59,70 @@ const Login = () => {
     }
 
     if (hasError) {
-      setIsSigningIn(false);
+      setIsCreating(false);
       return;
     }
 
     try {
-      // Clear existing sessions
+      // Create new user account
+      await account.create(ID.unique(), email, password, name.trim());
+
+      // Create session
+      await account.createEmailPasswordSession(email, password);
+
+      // Initiate email verification
       try {
-        const sessions = await account.listSessions();
-        await Promise.all(
-          sessions.sessions.map((session) => account.deleteSession(session.$id))
-        );
-      } catch (error) {
-        console.warn('No sessions to clear:', error);
+        await account.createVerification('http://localhost:3000/verify-email');
+      } catch (verificationError) {
+        console.error('Error sending verification email:', {
+          message: verificationError.message,
+          code: verificationError.code,
+          type: verificationError.type,
+          stack: verificationError.stack,
+        });
+        toast.error('Failed to send verification email. Please try again.', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: true,
+        });
+        setIsCreating(false);
+        return;
       }
 
-      // Create email/password session
-      await account.createEmailPasswordSession(email, password);
-      toast.success('Successfully signed in!', {
+      // Store email in session storage for verification page
+      sessionStorage.setItem('verificationEmail', email);
+
+      toast.success('Account created successfully! Please check your email to verify.', {
         position: 'top-right',
         autoClose: 3000,
         hideProgressBar: true,
       });
+
+      // Refresh the app to update AuthContext
       window.location.reload();
     } catch (error) {
-      console.error('Error during email login:', {
+      console.error('Error during account creation:', {
         message: error.message,
         code: error.code,
         type: error.type,
         stack: error.stack,
       });
-      let errorMessage = 'Failed to sign in. Please try again.';
-      if (error.code === 401) {
-        errorMessage = 'Invalid email or password.';
+      let errorMessage = 'Failed to create account. Please try again.';
+      if (error.code === 409) {
+        errorMessage = 'An account with this email already exists. Please log in or use a different email.';
       } else if (error.code === 429) {
         errorMessage = 'Too many attempts. Please try again later.';
-      } else if (error.code === 400 && error.message.includes('session is active')) {
-        errorMessage = 'An active session was detected. Please log out and try again.';
+      } else if (error.code === 400) {
+        errorMessage = 'Invalid input data. Please check your entries.';
+      } else if (error.code === 401) {
+        errorMessage = 'Authentication failed. Please try again.';
       }
       toast.error(errorMessage, {
         position: 'top-right',
         autoClose: 3000,
         hideProgressBar: true,
       });
-      setIsSigningIn(false);
+      setIsCreating(false);
     }
   };
 
@@ -149,8 +141,8 @@ const Login = () => {
   return (
     <>
       <Head>
-        <title>Sign In | Your App Name</title>
-        <meta name="description" content="Sign in to your account" />
+        <title>Create Account | Your App Name</title>
+        <meta name="description" content="Create a new account" />
       </Head>
       <ToastContainer />
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -161,10 +153,10 @@ const Login = () => {
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Welcome back
+            Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to access your account
+            Get started with your new account
           </p>
         </div>
 
@@ -178,6 +170,7 @@ const Login = () => {
                     ? 'border-indigo-600 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
+                disabled
               >
                 Continue with Google
               </button>
@@ -194,58 +187,51 @@ const Login = () => {
             </div>
 
             {activeTab === 'google' && (
-              <div className="mt-8">
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={isSigningIn}
-                  className="w-full flex justify-center items-center px-4 py-3 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
-                >
-                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C4.01 20.61 7.56 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.56 1 4.01 3.39 2.18 7.07l3.66 2.84c.87-2.60 3.30-4.53 6.16-4.53z"
-                    />
-                  </svg>
-                  {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
-                </button>
-                <div className="mt-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">
-                        New to our platform?
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-6">
-                    <a
-                      href="/create-account"
-                      className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Create an account
-                    </a>
-                  </div>
-                </div>
+              <div className="mt-8 text-center">
+                <p className="text-sm text-gray-600">
+                  Google signup is not available. Please use Email & Password.
+                </p>
               </div>
             )}
 
             {activeTab === 'email' && (
-              <form onSubmit={handleEmailSignIn} className="mt-8 space-y-6">
+              <form onSubmit={handleCreateAccount} className="mt-8 space-y-6">
                 <div className="space-y-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                      Full Name
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className={`block w-full pr-10 sm:text-sm rounded-md py-3 ${
+                          errors.name
+                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                        }`}
+                        placeholder="John Doe"
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? "name-error" : undefined}
+                      />
+                      {errors.name && (
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    {errors.name && (
+                      <p className="mt-2 text-sm text-red-600" id="name-error">
+                        {errors.name}
+                      </p>
+                    )}
+                  </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                       Email address
@@ -259,8 +245,8 @@ const Login = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className={`block w-full pr-10 sm:text-sm rounded-md py-3 ${
-                          errors.email 
-                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
+                          errors.email
+                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
                             : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
                         }`}
                         placeholder="you@example.com"
@@ -290,12 +276,12 @@ const Login = () => {
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className={`block w-full pr-10 sm:text-sm rounded-md py-3 ${
-                          errors.password 
-                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
+                          errors.password
+                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
                             : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
                         }`}
                         placeholder="••••••••"
@@ -330,53 +316,47 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end">
-                  <div className="text-sm">
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                      Forgot your password?
-                    </a>
-                  </div>
-                </div>
-
                 <div>
                   <button
                     type="submit"
-                    disabled={isSigningIn}
+                    disabled={isCreating}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
                   >
-                    {isSigningIn ? (
+                    {isCreating ? (
                       <>
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Signing in...
+                        Creating account...
                       </>
-                    ) : 'Sign in'}
+                    ) : 'Create account'}
                   </button>
-                </div>
-                <div className="mt-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">
-                        New to our platform?
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-6">
-                    <a
-                      href="/create-account"
-                      className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Create an account
-                    </a>
-                  </div>
                 </div>
               </form>
             )}
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Already have an account?
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <a
+                  href="/login"
+                  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Sign in
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -384,4 +364,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default CreateAccount;

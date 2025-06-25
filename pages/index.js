@@ -7,132 +7,427 @@ import {
   LockClosedIcon,
   UserGroupIcon,
   CpuChipIcon,
+  SparklesIcon,
+  ArrowPathIcon,
+  ChartBarIcon,
+  ServerIcon,
+  GlobeAltIcon,
 } from "@heroicons/react/24/solid";
+import { CheckCircle2 } from "lucide-react";
 
 export default function Home() {
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <motion.div
-          className="max-w-7xl mx-auto px-4 py-24 text-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-5xl font-bold mb-6 leading-tight">
-            Fish Audio 🎧 — Smart Audio Intelligence Platform
-          </h1>
-          <p className="text-xl mb-8">
-            Analyze, manage, and interact with sound like never before.
-          </p>
-          <a
-            href="#"
-            className="inline-block bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg shadow hover:bg-gray-100 transition"
-          >
-            Try It Now
-          </a>
-        </motion.div>
-      </section>
+    <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Hero Section - Enhanced */}
+      {/* Hero Section - Enhanced */}
+		<section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white overflow-hidden">
+		  <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10"></div>
+		  <motion.div
+			className="max-w-7xl mx-auto px-4 py-32 text-center relative"
+			initial={{ opacity: 0, y: -20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.8 }}
+		  >
+			<motion.div
+			  initial={{ scale: 0 }}
+			  animate={{ scale: 1 }}
+			  transition={{ delay: 0.2 }}
+			  className="w-24 h-24 bg-indigo-500/20 rounded-full absolute -top-10 -left-10"
+			></motion.div>
+			<motion.div
+			  initial={{ scale: 0 }}
+			  animate={{ scale: 1 }}
+			  transition={{ delay: 0.4 }}
+			  className="w-36 h-36 bg-purple-500/20 rounded-full absolute -bottom-10 -right-10"
+			></motion.div>
+			
+			<h1 className="flex flex-col text-5xl md:text-6xl font-extrabold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
+			  <span>Studio-Quality AI Voice Generation</span>
+			  <span className="mt-2 md:mt-4 lg:mt-6 text-white">Platform</span>
+			</h1>
 
-      {/* About Section */}
-      <section className="bg-white py-16 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">What is Fish Audio?</h2>
-          <p className="text-gray-600 text-lg">
-            Fish Audio is a full-stack web platform that uses Fish.Audio API to let users analyze,
-            process, and visualize audio in real-time. Built with modern tools and security-first architecture,
-            it provides deep insights into audio content.
-          </p>
+			
+			<motion.p
+			  initial={{ opacity: 0 }}
+			  animate={{ opacity: 1 }}
+			  transition={{ delay: 0.2 }}
+			  className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-indigo-100"
+			>
+			  Experience natural, human-like speech generation — without the premium price tag. Affordable, fast, and powerful
+			</motion.p>
+			
+			<div className="flex flex-col sm:flex-row gap-4 justify-center">
+			  <motion.a
+				href="/login"
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.4 }}
+				className="inline-flex items-center justify-center bg-white text-indigo-600 font-bold px-8 py-4 rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 hover:shadow-xl"
+			  >
+				Get Started
+			  </motion.a>
+			  <motion.a
+				href="#features"
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.5 }}
+				className="inline-flex items-center justify-center bg-transparent border-2 border-white text-white font-bold px-8 py-4 rounded-lg hover:bg-white/10 transition-all duration-300"
+			  >
+				Explore Features
+			  </motion.a>
+			</div>
+		  </motion.div>
+		</section>
+
+      {/* Logo Cloud Section - New */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="text-center text-gray-500 mb-8">Trusted by innovative teams worldwide</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-center">
+            {['Company A', 'Company B', 'Company C', 'Company D', 'Company E'].map((company, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-center justify-center text-gray-700 font-bold text-xl"
+              >
+                {company}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <h3 className="text-3xl font-bold text-center mb-12 text-gray-800">🔥 Key Features</h3>
+      {/* About Section - Enhanced */}
+      <section className="py-20 px-4 text-center bg-gradient-to-br from-indigo-50 to-purple-50">
+        <div className="max-w-4xl mx-auto">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl font-extrabold text-gray-900 mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
+          >
+            Revolutionizing Audio Analysis
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-600 text-lg md:text-xl"
+          >
+            Fish Audio is a full-stack web platform that uses advanced machine learning to provide real-time audio analysis.
+            Our secure, scalable solution delivers deep insights into your audio content with enterprise-grade reliability.
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8"
+          >
+            {[
+              { icon: ArrowPathIcon, title: "Real-time Processing", desc: "Analyze audio streams with <50ms latency" },
+              { icon: ChartBarIcon, title: "Advanced Analytics", desc: "Comprehensive audio metrics and visualization" },
+              { icon: ServerIcon, title: "Enterprise Scale", desc: "Process millions of hours of audio daily" },
+            ].map((item, i) => (
+              <div key={i} className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <item.icon className="h-8 w-8 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.desc}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Features Section - Enhanced */}
+      <section id="features" className="max-w-7xl mx-auto px-4 py-20 bg-white">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <span className="inline-block px-4 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-semibold mb-4">
+            Key Features
+          </span>
+          <h3 className="text-4xl font-extrabold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+            Powerful Audio Intelligence
+          </h3>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+            Discover how Fish Audio transforms your audio data into actionable insights
+          </p>
+        </motion.div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {[{
             icon: MusicalNoteIcon,
-            title: "Real-time Audio Analysis",
-            desc: "Visualize audio data live as it streams in using the Fish.Audio API.",
+            title: "Real-time Analysis",
+            desc: "Visualize audio data live as it streams with our low-latency API",
+            color: "bg-purple-100 text-purple-600"
           }, {
             icon: ShieldCheckIcon,
-            title: "Secure JWT Auth",
-            desc: "Protect user sessions with HTTP-only cookies and JWT tokens.",
+            title: "Enterprise Security",
+            desc: "End-to-end encryption with JWT auth and role-based access",
+            color: "bg-indigo-100 text-indigo-600"
           }, {
             icon: CpuChipIcon,
-            title: "Server Side Rendering",
-            desc: "All logic and APIs handled on secure, performant servers.",
+            title: "AI Processing",
+            desc: "Advanced machine learning models for audio classification",
+            color: "bg-blue-100 text-blue-600"
+          }, {
+            icon: GlobeAltIcon,
+            title: "Multi-language",
+            desc: "Support for 50+ languages and regional accents",
+            color: "bg-green-100 text-green-600"
+          }, {
+            icon: UserGroupIcon,
+            title: "Collaboration",
+            desc: "Share projects and annotations with your team",
+            color: "bg-amber-100 text-amber-600"
+          }, {
+            icon: PresentationChartLineIcon,
+            title: "Dashboards",
+            desc: "Customizable analytics dashboards with export",
+            color: "bg-rose-100 text-rose-600"
           }].map((item, index) => (
             <motion.div
               key={index}
-              className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
+              className="group bg-white p-6 rounded-xl border border-gray-200 hover:border-transparent hover:shadow-xl transition-all"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.2 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <item.icon className="h-10 w-10 text-blue-600 mb-4 mx-auto" />
-              <h4 className="text-xl font-bold text-blue-600 mb-2">{item.title}</h4>
+              <div className={`w-12 h-12 ${item.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                <item.icon className="h-6 w-6" />
+              </div>
+              <h4 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h4>
               <p className="text-gray-600">{item.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Security Section */}
-      <section className="bg-gray-100 py-16 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <LockClosedIcon className="h-12 w-12 mx-auto text-blue-600 mb-4" />
-          <h3 className="text-3xl font-bold text-gray-800 mb-6">🔒 Built for Security</h3>
-          <p className="text-lg text-gray-600 mb-8">
-            From encrypted sessions to CORS control, Appwrite auth to input sanitization —
-            we built Fish Audio to be rock-solid secure.
-          </p>
+      {/* Stats Section - New */}
+      <section className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { number: "10M+", label: "Audio Files Processed" },
+              { number: "99.9%", label: "Uptime" },
+              { number: "50+", label: "Languages Supported" },
+              { number: "24/7", label: "Support Available" },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.number}</div>
+                <div className="text-indigo-100">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Technologies Section */}
-      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h3 className="text-3xl font-bold text-gray-800 mb-10">🧰 Powered By</h3>
-        <div className="flex justify-center flex-wrap gap-6 text-lg text-gray-700 font-medium">
-          <span className="bg-gray-200 px-5 py-2 rounded">Next.js</span>
-          <span className="bg-gray-200 px-5 py-2 rounded">Tailwind CSS</span>
-          <span className="bg-gray-200 px-5 py-2 rounded">Appwrite</span>
-          <span className="bg-gray-200 px-5 py-2 rounded">Google Auth</span>
-          <span className="bg-gray-200 px-5 py-2 rounded">Fish.Audio API</span>
+      {/* Security Section - Enhanced */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-12 items-center">
+            <motion.div 
+              className="md:w-1/2"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <LockClosedIcon className="h-12 w-12 text-indigo-600 mb-4" />
+              <h3 className="text-3xl font-extrabold text-gray-900 mb-6">Enterprise-grade Security</h3>
+              <p className="text-lg text-gray-600 mb-6">
+                We built Fish Audio with security as the foundation. From encrypted sessions to strict CORS policies, 
+                every layer is designed to protect your data.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  "End-to-end encryption",
+                  "GDPR & CCPA compliant",
+                  "Regular security audits",
+                  "Role-based access control",
+                  "Data residency options"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start">
+                    <CheckCircle2 className="h-6 w-6 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+            <motion.div 
+              className="md:w-1/2 bg-gray-100 rounded-xl overflow-hidden shadow-lg"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 opacity-90 p-8 flex items-center justify-center">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6 w-full">
+                  <div className="space-y-4">
+                    {['Data Encryption', 'Access Logs', 'Session Management', 'API Security'].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-white/90">{item}</span>
+                        <div className="h-2 bg-white/20 rounded-full w-3/4">
+                          <div 
+                            className="h-full bg-white rounded-full" 
+                            style={{ width: `${75 + (i * 7)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
+		
+		{/* Competitive Pricing Section with Background */}
+		<section className="bg-gradient-to-br from-indigo-50 to-purple-50 py-20 px-4">
+		  <div className="max-w-7xl mx-auto">
+			<div className="text-center mb-16">
+			  <motion.h3 
+				initial={{ opacity: 0, y: 20 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				viewport={{ once: true }}
+				className="text-4xl font-extrabold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
+			  >
+				Compare Our Pricing
+			  </motion.h3>
+			  <motion.p
+				initial={{ opacity: 0 }}
+				whileInView={{ opacity: 1 }}
+				viewport={{ once: true }}
+				transition={{ delay: 0.2 }}
+				className="text-gray-600 max-w-2xl mx-auto text-lg"
+			  >
+				See how Fish Audio provides better value than the competition
+			  </motion.p>
+			</div>
 
-      {/* How it Works */}
-      <section className="bg-white py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <PresentationChartLineIcon className="h-12 w-12 mx-auto text-blue-600 mb-4" />
-          <h3 className="text-3xl font-bold text-gray-800 mb-10">⚙️ How It Works</h3>
-          <ol className="text-gray-600 space-y-4 text-left md:text-center list-decimal list-inside text-lg">
-            <li>Sign in securely with your Google account.</li>
-            <li>Upload or stream audio files via browser.</li>
-            <li>View real-time audio breakdown and metadata.</li>
-            <li>Manage account and session with secure backend APIs.</li>
-            <li>Export or share results to collaborate with others.</li>
-          </ol>
-        </div>
-      </section>
+			<motion.div
+			  initial={{ opacity: 0 }}
+			  whileInView={{ opacity: 1 }}
+			  viewport={{ once: true }}
+			  className="bg-white rounded-xl shadow-lg overflow-hidden"
+			>
+			  <div className="overflow-x-auto">
+				<table className="w-full table-auto border-collapse">
+				  <thead>
+					<tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+					  <th className="p-4 text-left font-semibold rounded-tl-xl">Feature</th>
+					  <th className="p-4 font-semibold text-center">Fish Audio</th>
+					  <th className="p-4 font-semibold text-center">ElevenLabs</th>
+					  <th className="p-4 font-semibold text-center">Descript</th>
+					  <th className="p-4 font-semibold text-center rounded-tr-xl">Rev.com</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					{[
+					  {
+						feature: "Basic Plan Price",
+						fishAudio: "$9/month",
+						elevenLabs: "$22/month",
+						descript: "$15/month",
+						rev: "$20/month",
+						highlight: true
+					  },
+					  {
+						feature: "Advanced Features",
+						fishAudio: "Included",
+						elevenLabs: "Extra $10/month",
+						descript: "Limited",
+						rev: "Extra $15/month"
+					  },
+					  {
+						feature: "Free Tier",
+						fishAudio: "Yes (2hrs/month)",
+						elevenLabs: "No",
+						descript: "Yes (1hr/month)",
+						rev: "No"
+					  },
+					  {
+						feature: "Real-time Processing",
+						fishAudio: "Yes (<50ms latency)",
+						elevenLabs: "No",
+						descript: "Limited (500ms+)",
+						rev: "No"
+					  },
+					  {
+						feature: "Languages Supported",
+						fishAudio: "50+ languages",
+						elevenLabs: "30 languages",
+						descript: "20 languages",
+						rev: "10 languages"
+					  },
+					  {
+						feature: "Maximum File Size",
+						fishAudio: "10GB",
+						elevenLabs: "2GB",
+						descript: "1GB",
+						rev: "500MB",
+						lastRow: true
+					  }
+					].map((row, index) => (
+					  <motion.tr 
+						key={index}
+						initial={{ opacity: 0, x: -20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						transition={{ delay: index * 0.1 }}
+						viewport={{ once: true }}
+						className={`border-t border-gray-200 ${row.lastRow ? 'rounded-b-xl' : ''}`}
+					  >
+						<td className={`p-4 font-medium text-gray-900 ${row.lastRow ? 'rounded-bl-xl' : ''}`}>{row.feature}</td>
+						<td className="p-4 text-center font-semibold">
+						  {row.highlight ? (
+							<span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">{row.fishAudio}</span>
+						  ) : (
+							<span className="text-indigo-600">{row.fishAudio}</span>
+						  )}
+						</td>
+						<td className="p-4 text-center text-gray-700">{row.elevenLabs}</td>
+						<td className="p-4 text-center text-gray-700">{row.descript}</td>
+						<td className={`p-4 text-center text-gray-700 ${row.lastRow ? 'rounded-br-xl' : ''}`}>{row.rev}</td>
+					  </motion.tr>
+					))}
+				  </tbody>
+				</table>
+			  </div>
+			</motion.div>
 
-      {/* Final Call to Action */}
-      <section className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white py-20 px-4 text-center">
-        <UserGroupIcon className="h-10 w-10 mx-auto mb-4 text-white" />
-        <h3 className="text-4xl font-bold mb-6">Join the Future of Sound Intelligence</h3>
-        <p className="text-lg mb-8">
-          Get started now and experience intelligent audio like never before.
-        </p>
-        <a
-          href="#"
-          className="bg-white text-blue-700 font-bold px-8 py-3 rounded-lg shadow hover:bg-gray-200 transition"
-        >
-          Sign In with Google
-        </a>
-      </section>
-    </>
+			<motion.div 
+			  className="mt-12 text-center"
+			  initial={{ opacity: 0, y: 20 }}
+			  whileInView={{ opacity: 1, y: 0 }}
+			  viewport={{ once: true }}
+			>
+			  <a
+				href="/pricing"
+				className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+			  >
+				Go to pricing page
+			  </a>
+			</motion.div>
+		  </div>
+		</section>
+		
+    </div>
   );
 }

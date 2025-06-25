@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { account, client, ID } from '@/lib/appwriteConfig';
+import { account, client, ID, databases } from '@/lib/appwriteConfig'; // Ensure databases is imported
 import { Databases, Permission, Role } from 'appwrite';
-import { Creem } from 'creem';
 
 const AuthContext = createContext();
 
@@ -21,9 +20,8 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      const databases = new Databases(client);
-      const databaseId = '67fecfed002f909fc072';
-      const collectionId = '67fecffb00075d13ade6';
+      const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
+      const collectionId = process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID;
 
       let userDoc;
       try {
@@ -39,7 +37,7 @@ export function AuthProvider({ children }) {
               name: userData.name || '',
               user_email: userData.email || '',
               picture: userData.prefs?.picture || '',
-              creem_customer_id: '', // Initialize as empty
+              creem_customer_id: '',
               current_active_plan: '',
               is_active: false,
               char_allowed: 0,
@@ -61,8 +59,6 @@ export function AuthProvider({ children }) {
           throw error;
         }
       }
-
-
 
       // Fetch profile picture if missing
       let picture = userData.prefs?.picture || userDoc.picture;
@@ -108,10 +104,19 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await account.deleteSession('current');
+      // Fetch all sessions for the user
+      const sessions = await account.listSessions();
+      // Delete all sessions
+      await Promise.all(
+        sessions.sessions.map((session) => account.deleteSession(session.$id))
+      );
       setUser(null);
     } catch (error) {
       console.error('Error during logout:', error);
+      toast.error('Failed to log out completely. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
   };
 

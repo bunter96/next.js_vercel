@@ -43,7 +43,7 @@ export default function Home() {
 			></motion.div>
 			
 			<h1 className="flex flex-col text-5xl md:text-6xl font-extrabold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
-			  <span>Studio-Quality AI Voice Generation</span>
+			  <span>Studio Quality AI Voice Generation</span>
 			  <span className="mt-2 md:mt-4 lg:mt-6 text-white">Platform</span>
 			</h1>
 

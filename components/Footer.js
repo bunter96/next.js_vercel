@@ -1,5 +1,6 @@
 // components/Footer.js
 import Link from 'next/link';
+import Image from 'next/image';
 
 const socialLinks = [
   {
@@ -33,46 +34,43 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer 
-      className="bg-gray-900 mt-16"
-      role="contentinfo"
-      aria-label="Footer"
-    >
+    <footer className="bg-gray-900 mt-16" role="contentinfo" aria-label="Footer">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:justify-between items-center text-gray-400">
           <div className="text-center md:text-left">
-            <h2 className="text-lg font-semibold text-white">LowCost TTS</h2>
+            <div className="flex items-center justify-center md:justify-start space-x-2">
+              <Image
+                src="/logo.png"
+                alt="LowCost TTS logo"
+                width={32}
+                height={32}
+                className="invert"
+              />
+              <h2 className="text-lg font-semibold text-white">LowCost TTS</h2>
+            </div>
             <p className="mt-2 text-sm max-w-xs">
-              Experience natural, human-like speech generation — without the premium price tag Affordable, fast, and powerful
+              Experience natural, human-like speech generation — without the premium price tag. Affordable, fast, and powerful.
             </p>
           </div>
 
           <div className="mt-6 md:mt-0 flex flex-wrap justify-center gap-4 md:gap-6">
-            <Link 
-              href="/about" 
-              className="hover:text-white text-sm transition-colors duration-200"
-              prefetch={false}
-            >
+            <Link href="/about" className="hover:text-white text-sm transition-colors duration-200" prefetch={false}>
               About
             </Link>
-            <Link 
-              href="/contact" 
-              className="hover:text-white text-sm transition-colors duration-200"
-              prefetch={false}
-            >
+            <Link href="/contact-us" className="hover:text-white text-sm transition-colors duration-200" prefetch={false}>
               Contact
             </Link>
-            <Link 
-              href="/privacy-policy" 
-              className="hover:text-white text-sm transition-colors duration-200"
-            >
+            <Link href="/privacy-policy" className="hover:text-white text-sm transition-colors duration-200">
               Privacy
             </Link>
-            <Link 
-              href="/terms-of-service" 
-              className="hover:text-white text-sm transition-colors duration-200"
-            >
+            <Link href="/terms" className="hover:text-white text-sm transition-colors duration-200">
               Terms
+            </Link>
+            <Link href="/refund" className="hover:text-white text-sm transition-colors duration-200">
+              Refund
+            </Link>
+	        <Link href="/gdpr" className="hover:text-white text-sm transition-colors duration-200">
+              GDPR Compliance
             </Link>
           </div>
         </div>
@@ -87,13 +85,12 @@ export default function Footer() {
               className="text-gray-400 hover:text-white transition-colors duration-200"
               aria-label={item.name}
             >
-              <span className="sr-only">{item.name}</span>
               {item.icon}
             </a>
           ))}
         </div>
 
-        <div className="mt-8 text-center text-sm text-gray-500">
+        <div className="mt-8 text-center text-sm text-white">
           © {new Date().getFullYear()} LowCost TTS — All rights reserved.
         </div>
       </div>

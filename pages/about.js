@@ -1,5 +1,6 @@
 // app/about/page.js
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaGithub, FaTwitter, FaLinkedin, FaMicrophone, FaRobot, FaRegLightbulb } from 'react-icons/fa';
 
 export default function AboutPage() {
@@ -61,7 +62,7 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Technology</h2>
               <p className="text-gray-600 mb-6">
                 LowCost TTS uses state-of-the-art deep learning models trained on thousands of hours of human speech.
-                We've perfected the subtle nuances that make synthetic speech sound truly human.
+                We&apos;ve perfected the subtle nuances that make synthetic speech sound truly human.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start">
@@ -149,12 +150,12 @@ export default function AboutPage() {
             Join thousands of creators, developers, and businesses using LowCost TTS today.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a
+            <Link
               href="/login"
               className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
             >
               Join Now
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -100,9 +100,9 @@ export default function ContactPage() {
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
               Contact Us
             </h1>
-            <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-            </p>
+			<p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+			  We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+			</p>
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">

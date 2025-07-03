@@ -14,6 +14,7 @@
     "appwrite": "^17.0.2",
     "axios": "^1.8.4",
     "chart.js": "^4.4.9",
+    "cookies-next": "^6.0.0",
     "creem": "^0.3.37",
     "crypto-js": "^4.2.0",
     "dotenv": "^17.0.1",

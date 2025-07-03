@@ -2,13 +2,10 @@ import { account } from '@/lib/appwriteConfig';
 
 export default async function handler(req, res) {
   try {
-    const { referer } = req.headers;
-    const successRedirect = referer && referer.includes('https://app.lowcosttts.online')
-      ? referer.replace(/\/login$/, '/account') // Redirect to /account instead of /login
-      : 'https://app.lowcosttts.online/account';
-    const failureRedirect = 'https://app.lowcosttts.online';
+    const successRedirect = 'https://app.lowcosttts.online/api/auth/proxy-callback';
+    const failureRedirect = 'https://app.lowcosttts.online?error=auth_failed';
 
-    // Create OAuth2 session (returns a string URL)
+    // Create OAuth2 session
     const loginUrl = await account.createOAuth2Session(
       'google',
       successRedirect,
@@ -18,14 +15,13 @@ export default async function handler(req, res) {
     // Log for debugging
     console.log('Login URL:', loginUrl);
 
-    // Check if loginUrl is a valid string
+    // Validate loginUrl
     if (!loginUrl || typeof loginUrl !== 'string') {
       throw new Error('Failed to generate OAuth login URL');
     }
 
     // Redirect to Google's OAuth page
-    res.writeHead(302, { Location: loginUrl });
-    res.end();
+    res.redirect(302, loginUrl);
   } catch (error) {
     console.error('Error in /api/auth/login:', error);
     res.status(500).json({ error: 'Failed to initiate OAuth login', details: error.message });

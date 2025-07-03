@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { account, client, ID, databases } from '@/lib/appwriteConfig'; // Ensure databases is imported
+import { account, client, ID, databases } from '@/lib/appwriteConfig';
 import { Databases, Permission, Role } from 'appwrite';
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
@@ -11,10 +12,21 @@ export function AuthProvider({ children }) {
   const fetchUser = async () => {
     try {
       let userData;
+      const sessionId = Cookies.get('session');
+      if (!sessionId) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // Set the session in the Appwrite client
+      client.headers['X-Appwrite-Session'] = sessionId;
+
       try {
-        await account.getSession('current');
         userData = await account.get();
       } catch (sessionError) {
+        console.error('Session error:', sessionError);
+        Cookies.remove('session');
         setUser(null);
         setLoading(false);
         return;
@@ -110,6 +122,7 @@ export function AuthProvider({ children }) {
       await Promise.all(
         sessions.sessions.map((session) => account.deleteSession(session.$id))
       );
+      Cookies.remove('session');
       setUser(null);
     } catch (error) {
       console.error('Error during logout:', error);

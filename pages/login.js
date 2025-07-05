@@ -10,7 +10,7 @@ import Head from 'next/head';
 const Login = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { verify, error } = router.query;
+  const { verify } = router.query; // Check for verify=true
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [activeTab, setActiveTab] = useState('google');
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ const Login = () => {
   const [errors, setErrors] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
-  // Handle verification, errors, and session finalization
+  // Show verification prompt if verify=true
   useEffect(() => {
     if (verify === 'true') {
       toast.info('Please log in to complete email verification.', {
@@ -27,38 +27,7 @@ const Login = () => {
         hideProgressBar: true,
       });
     }
-    if (error === 'auth_failed') {
-      toast.error('Google sign-in failed. Please try again.', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: true,
-      });
-    }
-
-    // Check if we're back from OAuth flow
-    const finalizeSession = async () => {
-      try {
-        const response = await fetch('/api/auth/finalize', { method: 'GET' });
-        const data = await response.json();
-        if (data.success) {
-          router.push(data.redirect);
-        } else {
-          throw new Error(data.details || 'Session finalization failed');
-        }
-      } catch (err) {
-        console.error('Error finalizing session:', err);
-        toast.error('Failed to complete sign-in. Please try again.', {
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: true,
-        });
-      }
-    };
-
-    if (router.asPath.includes('/login') && !user && !loading) {
-      finalizeSession();
-    }
-  }, [verify, error, router, user, loading]);
+  }, [verify]);
 
   // Redirect to /account if authenticated
   useEffect(() => {
@@ -264,12 +233,12 @@ const Login = () => {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <Link
-                      href="/create-account"
-                      className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Create an account
-                    </Link>
+					<Link
+					  href="/create-account"
+					  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					>
+					  Create an account
+					</Link>
                   </div>
                 </div>
               </div>
@@ -399,12 +368,12 @@ const Login = () => {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <Link
-                      href="/create-account"
-                      className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Create an account
-                    </Link>
+					<Link
+					  href="/create-account"
+					  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					>
+					  Create an account
+					</Link>
                   </div>
                 </div>
               </form>

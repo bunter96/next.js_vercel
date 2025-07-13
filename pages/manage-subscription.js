@@ -186,9 +186,9 @@ export default function ManageSubscription() {
 			  <h2 className="text-2xl font-bold text-gray-800 mb-3">
 				No Active Subscription
 			  </h2>
-			  <p className="text-gray-600 mb-6">
-				You don't have any active subscriptions. Explore our plans to unlock premium features.
-			  </p>
+				<p className="text-gray-600 mb-6">
+				  You don&apos;t have any active subscriptions. Explore our plans to unlock premium features.
+				</p>
 			  <button
 				onClick={() => window.location.href = '/pricing'}
 				className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium bg-gradient-to-r from-indigo-600 to-purple-600"

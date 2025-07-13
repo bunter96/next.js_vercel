@@ -165,6 +165,7 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(null);
   const { user } = useAuth();
   const shouldReduceMotion = useReducedMotion();
+  const [openIndex, setOpenIndex] = useState(null);
 
   // Memoized values
   const memoizedPlans = useMemo(() => plans, []);
@@ -492,38 +493,38 @@ export default function PricingPage() {
           </div>
         </motion.section>
 
-		<motion.section className="mt-20">
-		  <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-			Frequently Asked Questions
-		  </h2>
-		  <div className="max-w-3xl mx-auto space-y-1">
-			{faqs.map((faq, i) => {
-			  const [isOpen, setIsOpen] = useState(false);
-			  
-			  return (
-				<div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden">
-				  <button
-					onClick={() => setIsOpen(!isOpen)}
-					className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors"
-					aria-expanded={isOpen}
-				  >
-					<h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
-					<div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-					  <ChevronDown className="w-5 h-5 text-indigo-600" />
-					</div>
-				  </button>
-				  
-				  <div 
-					className={`overflow-hidden transition-all duration-100 ${isOpen ? 'max-h-[500px] opacity-100 pb-6 px-6' : 'max-h-0 opacity-0'}`}
-					style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
-				  >
-					<p className="text-gray-600">{faq.answer}</p>
-				  </div>
-				</div>
-			  );
-			})}
-		  </div>
-		</motion.section>
+    <motion.section className="mt-20">
+      <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+        Frequently Asked Questions
+      </h2>
+      <div className="max-w-3xl mx-auto space-y-1">
+        {faqs.map((faq, i) => {
+          const isOpen = openIndex === i;
+
+          return (
+            <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <button
+                onClick={() => setOpenIndex(isOpen ? null : i)}
+                className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors"
+                aria-expanded={isOpen}
+              >
+                <h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
+                <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                  <ChevronDown className="w-5 h-5 text-indigo-600" />
+                </div>
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-100 ${isOpen ? 'max-h-[500px] opacity-100 pb-6 px-6' : 'max-h-0 opacity-0'}`}
+                style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
+              >
+                <p className="text-gray-600">{faq.answer}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </motion.section>
 
       </div>
     </motion.section>

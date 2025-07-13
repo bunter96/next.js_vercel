@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function VoiceCloning() {
-  const { user, loading } = useAuth();
+  const { user, loading, setUser } = useAuth();
   const router = useRouter();
   const [name, setName] = useState('');
   const [audioFile, setAudioFile] = useState(null);
@@ -206,11 +206,32 @@ export default function VoiceCloning() {
     }
   };
 
-  const handleClone = async () => {
-    if (!validateFields()) return;
+// In voice-cloning.js, update the handleClone function:
 
-    setUploading(true);
+const handleClone = async () => {
+  if (!validateFields()) return;
 
+  // First check if user has any voice clone allowance
+  if (!user?.voice_clone_allowed || user.voice_clone_allowed <= 0) {
+    toast.error('You have no voice cloning credits available. Please upgrade your plan.', {
+      position: 'top-right',
+      autoClose: 5000,
+    });
+    return;
+  }
+
+  // Then check if user has used up all their allowance
+  if (user.voice_clone_used >= user.voice_clone_allowed) {
+    toast.error('You have used all your voice cloning credits. Please upgrade your plan.', {
+      position: 'top-right',
+      autoClose: 5000,
+    });
+    return;
+  }
+
+  setUploading(true);
+
+  try {
     const formData = new FormData();
     formData.append('title', name);
     formData.append('voices', audioFile);
@@ -218,39 +239,68 @@ export default function VoiceCloning() {
       formData.append('cover_image', imageFile);
     }
 
-    try {
-      const response = await fetch('/api/voice-clone', {
-        method: 'POST',
-        body: formData,
-      });
+    const response = await fetch('/api/voice-clone', {
+      method: 'POST',
+      body: formData,
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Voice cloning failed');
-      }
-
-      const data = await response.json();
-      
-      const newClone = {
-        id: data.modelId,
-        name: data.title,
-        coverImage: data.coverImage,
-        state: data.state,
-        createdAt: new Date(data.createdAt).toLocaleString(),
-      };
-
-      setClones(prev => [newClone, ...prev]);
-      await saveModelToAppwrite(data);
-      resetForm();
-      toast.success('Voice cloned successfully!');
-
-    } catch (error) {
-      console.error('Cloning error:', error);
-      toast.error(`Error: ${error.message}`);
-    } finally {
-      setUploading(false);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Voice cloning failed');
     }
-  };
+
+    const data = await response.json();
+    
+    const newClone = {
+      id: data.modelId,
+      name: data.title,
+      coverImage: data.coverImage,
+      state: data.state,
+      createdAt: new Date(data.createdAt).toLocaleString(),
+    };
+
+    setClones(prev => [newClone, ...prev]);
+    
+    // Update the user's voice_clone_used count in the UI immediately
+    setUser(prev => ({
+      ...prev,
+      voice_clone_used: (prev.voice_clone_used || 0) + 1
+    }));
+
+    // Update the count in database
+    try {
+      await databases.updateDocument(
+        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
+        user.$id,
+        {
+          voice_clone_used: (user.voice_clone_used || 0) + 1
+        }
+      );
+    } catch (dbError) {
+      console.error('Error updating clone count:', dbError);
+      toast.error('Cloning succeeded but failed to update your credits. Please contact support.', {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+    }
+
+    resetForm();
+    toast.success(`Voice cloned successfully! Credit used: ${(user.voice_clone_used || 0) + 1}/${user.voice_clone_allowed}`, {
+      position: 'top-right',
+      autoClose: 5000,
+    });
+
+  } catch (error) {
+    console.error('Cloning error:', error);
+    toast.error(`Error: ${error.message}`, {
+      position: 'top-right',
+      autoClose: 5000,
+    });
+  } finally {
+    setUploading(false);
+  }
+};
 
   useEffect(() => {
     return () => {

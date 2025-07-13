@@ -1,71 +1,116 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import PropTypes from 'prop-types';
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, ChevronDown } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
 import { account } from '../lib/appwriteConfig';
 import { toast } from 'react-hot-toast';
 
+// Utility functions
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
+const formatCurrency = (amount, currency = 'USD') => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const getAllUniqueFeatures = (plans) => {
+  const features = new Set();
+  plans.forEach(plan => {
+    plan.features.forEach(feature => features.add(feature));
+  });
+  return Array.from(features);
+};
+
+// Plan data
 const plans = [
   {
     title: "Starter",
-    monthly: "$9",
-    yearly: "$90",
+    monthly: formatCurrency(9),
+    yearly: formatCurrency(86), // 20% discount on $9*12
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
-    description: "Perfect for individuals starting out.",
-    features: ["1 Project", "Basic Analytics", "Email Support"],
+    description: "Perfect for individuals starting out",
+    features: [
+      "50,000 monthly credits",
+      "Voice cloning",
+      "Numbe of Hours speech",
+      "Audio Download",
+      "Characters per conversion",
+    ],
     cta: "Get Started",
     featured: false,
-    monthlyId: "prod_3d6z0m8mKmzuV6LvPwc0jf",
-    yearlyId: "prod_3hWM6T8Iu8GZsUFsyQgrnB",
+    monthlyId: process.env.REACT_APP_STRIPE_STARTER_MONTHLY || "prod_3d6z0m8mKmzuV6LvPwc0jf",
+    yearlyId: process.env.REACT_APP_STRIPE_STARTER_YEARLY || "prod_3hWM6T8Iu8GZsUFsyQgrnB",
   },
   {
     title: "Pro",
-    monthly: "$29",
-    yearly: "$290",
+    monthly: formatCurrency(29),
+    yearly: formatCurrency(278), // 20% discount on $29*12
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
-    description: "Ideal for growing teams and businesses.",
+    description: "Ideal for growing teams and businesses",
     features: [
-      "10 Projects",
-      "Advanced Analytics",
-      "Priority Email Support",
-      "Team Collaboration",
+      "100,000 monthly credits",
+      "Voice cloning",
+      "Numbe of Hours speech",
+      "Analytics",
+      "Audio Download",
+      "Commercial use",
+      "Characters per conversion",
+      "Generated file storage",
     ],
     cta: "Upgrade Now",
     featured: true,
-    monthlyId: "prod_1308g86Vz0IIqbZgpPa9o4",
-    yearlyId: "prod_1B1DSJwW6nBTYgQYFsxP7",
+    monthlyId: process.env.REACT_APP_STRIPE_PRO_MONTHLY || "prod_1308g86Vz0IIqbZgpPa9o4",
+    yearlyId: process.env.REACT_APP_STRIPE_PRO_YEARLY || "prod_1B1DSJwW6nBTYgQYFsxP7",
   },
   {
     title: "Turbo",
-    monthly: "$50",
-    yearly: "$500",
+    monthly: formatCurrency(50),
+    yearly: formatCurrency(480), // 20% discount on $50*12
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
-    description: "High-performance plan for scaling businesses.",
+    description: "High-performance plan for scaling businesses",
     features: [
-      "Unlimited Projects",
-      "Advanced Analytics",
-      "24/7 Priority Support",
-      "Team Collaboration",
-      "Dedicated Account Manager",
+      "300,000 monthly credits",
+      "Voice cloning",
+      "Numbe of Hours speech",
+      "Analytics",
+      "Audio Download",
+      "Commercial use",
+      "Characters per conversion",
+      "Generated file storage",
+      "Priority generation",
+      "Enhance reference audio",
     ],
     cta: "Get Turbo",
     featured: false,
-    monthlyId: "prod_xNBLeAW61WSH5dmRcBxPP",
-    yearlyId: "prod_23qN6cgjlpiCtD3OfY2JqH",
+    monthlyId: process.env.REACT_APP_STRIPE_TURBO_MONTHLY || "prod_xNBLeAW61WSH5dmRcBxPP",
+    yearlyId: process.env.REACT_APP_STRIPE_TURBO_YEARLY || "prod_23qN6cgjlpiCtD3OfY2JqH",
   },
 ];
 
+
+// Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.3 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.25, delayChildren: 0.4 } },
 };
 
 const itemVariants = {
-  hidden: { y: 50, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } },
+  hidden: { y: 100, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 80, damping: 12, mass: 0.8 } },
 };
 
 const tableRowVariants = {
@@ -83,98 +128,121 @@ const faqVariants = {
   visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 80 } },
 };
 
+// FAQ data
+const faqs = [
+  {
+    question: "What is the difference between monthly and yearly billing?",
+    answer: "Monthly billing charges you each month, offering flexibility to cancel anytime. Yearly billing charges annually and offers a 20% discount compared to monthly billing.",
+  },
+  {
+    question: "Can I upgrade or downgrade my plan later?",
+    answer: "Yes, you can upgrade or downgrade your plan at any time through your account settings. Changes take effect at the start of the next billing cycle.",
+  },
+  {
+    question: "Is there a free trial available?",
+    answer: "We currently do not offer a free trial, but you can contact our support team to discuss your needs and explore our plans.",
+  },
+  {
+    question: "What payment methods do you accept?",
+    answer: "We accept all major credit cards, including Visa, MasterCard, and American Express, as well as select digital payment methods.",
+  },
+  {
+    question: "What happens if I cancel my subscription?",
+    answer: "If you cancel, you'll retain access to your plan's features until the end of the current billing period. No refunds are provided for partial periods.",
+  },
+  {
+    question: "Do you offer refunds?",
+    answer: "Refunds are not available for subscriptions, but you can cancel anytime to avoid future charges. Contact support for assistance with any issues.",
+  },
+  {
+    question: "How does the Dedicated Account Manager feature work?",
+    answer: "With the Turbo plan, a Dedicated Account Manager provides personalized support, helping you optimize your use of our platform and addressing any concerns.",
+  },
+];
+
 export default function PricingPage() {
   const [yearly, setYearly] = useState(false);
   const [loading, setLoading] = useState(null);
   const { user } = useAuth();
   const shouldReduceMotion = useReducedMotion();
 
+  // Memoized values
   const memoizedPlans = useMemo(() => plans, []);
-
-  const debounce = (func, wait) => {
-    let timeout;
-    return (...args) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    };
-  };
+  const uniqueFeatures = [
+  "Monthly credits",
+  "Voice cloning",
+  "Numbe of Hours speech",
+  "Analytics",
+  "Audio Download",
+  "Commercial use",
+  "Characters per conversion",
+  "Generated file storage",
+  "Priority generation",
+  "Enhance reference audio",
+];
+  const activePlanId = useMemo(() => user?.active_product_id || null, [user]);
 
   const handleSubscribe = debounce(async (plan) => {
     if (!user) {
-      toast.error("Please log in to subscribe.", { duration: 4000 });
-      setTimeout(() => (window.location.href = '/login'), 1000);
+      toast.error("Please log in to subscribe.", { duration: 2500 });
+      setTimeout(() => (window.location.href = '/login'), 800);
       return;
     }
 
-    const planId = yearly ? plan.yearlyId : plan.monthlyId;
-    if (user?.active_product_id === planId) {
-      toast("You're already subscribed to this plan!", { duration: 3000 });
-      return;
-    }
-
-    setLoading(plan.title);
     try {
-      const billingCycle = yearly ? 'yearly' : 'monthly';
-      const fullPlanName = `${plan.title} ${billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)}`;
+      setLoading(plan.title);
+      
+      const planId = yearly ? plan.yearlyId : plan.monthlyId;
+      if (activePlanId === planId) {
+        toast("You're already subscribed to this plan!", { 
+          duration: 3000,
+          icon: 'ℹ️',
+        });
+        return;
+      }
 
       const jwtResponse = await account.createJWT();
-      const jwt = jwtResponse.jwt;
+      if (!jwtResponse?.jwt) throw new Error('Failed to create authentication token');
 
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-Appwrite-JWT': jwt,
+          'X-Appwrite-JWT': jwtResponse.jwt,
         },
         body: JSON.stringify({ 
           planId, 
-          billingCycle,
-          fullPlanName,
+          billingCycle: yearly ? 'yearly' : 'monthly',
+          fullPlanName: `${plan.title} ${yearly ? 'Yearly' : 'Monthly'}`,
         }),
       });
 
-      const { url } = await response.json();
-      if (!response.ok) throw new Error('Failed to create checkout session');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to create checkout session');
+      }
 
+      const { url } = await response.json();
+      if (!url) throw new Error('Missing checkout URL');
+      
       window.location.href = url;
     } catch (error) {
       console.error('Subscription error:', error);
-      toast.error('Failed to start subscription. Please try again.', { duration: 4000 });
+      toast.error(error.message || 'Failed to start subscription. Please try again.', { 
+        duration: 3000,
+      });
     } finally {
       setLoading(null);
     }
   }, 300);
 
-  const faqs = [
-    {
-      question: "What is the difference between monthly and yearly billing?",
-      answer: "Monthly billing charges you each month, offering flexibility to cancel anytime. Yearly billing charges annually and offers a 20% discount compared to monthly billing.",
-    },
-    {
-      question: "Can I upgrade or downgrade my plan later?",
-      answer: "Yes, you can upgrade or downgrade your plan at any time through your account settings. Changes take effect at the start of the next billing cycle.",
-    },
-    {
-      question: "Is there a free trial available?",
-      answer: "We currently do not offer a free trial, but you can contact our support team to discuss your needs and explore our plans.",
-    },
-    {
-      question: "What payment methods do you accept?",
-      answer: "We accept all major credit cards, including Visa, MasterCard, and American Express, as well as select digital payment methods.",
-    },
-    {
-      question: "What happens if I cancel my subscription?",
-      answer: "If you cancel, you'll retain access to your plan's features until the end of the current billing period. No refunds are provided for partial periods.",
-    },
-    {
-      question: "Do you offer refunds?",
-      answer: "Refunds are not available for subscriptions, but you can cancel anytime to avoid future charges. Contact support for assistance with any issues.",
-    },
-    {
-      question: "How does the Dedicated Account Manager feature work?",
-      answer: "With the Turbo plan, a Dedicated Account Manager provides personalized support, helping you optimize your use of our platform and addressing any concerns.",
-    },
-  ];
+  // Runtime prop-type checking in development
+  if (process.env.NODE_ENV === 'development') {
+    const userPropTypes = {
+      active_product_id: PropTypes.string,
+    };
+    if (user) PropTypes.checkPropTypes(userPropTypes, user, 'user', 'PricingPage');
+  }
 
   return (
     <motion.section
@@ -237,17 +305,18 @@ export default function PricingPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+		  viewport={{ once: true, margin: "100px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10"
         >
           {memoizedPlans.map((plan, idx) => {
             const planId = yearly ? plan.yearlyId : plan.monthlyId;
-            const isSubscribed = user?.active_product_id === planId;
+            const isSubscribed = activePlanId === planId;
 
             return (
               <motion.div
                 key={idx}
                 variants={itemVariants}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.4, delay: idx * 0.2 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: idx * 0.25 }}
                 className={`rounded-3xl shadow-xl p-8 flex flex-col items-center text-center bg-white transition-all duration-300 hover:shadow-2xl ${
                   plan.featured
                     ? "border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 transform scale-105 relative overflow-hidden"
@@ -355,18 +424,7 @@ export default function PricingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    "Basic Analytics",
-                    "Advanced Analytics",
-                    "Team Collaboration",
-                    "24/7 Priority Support",
-                    "Dedicated Account Manager",
-                    "Unlimited Projects",
-                    "Email Support",
-                    "Priority Email Support",
-                    "1 Project",
-                    "10 Projects",
-                  ].map((feature, i) => (
+                  {uniqueFeatures.map((feature, i) => (
                     <motion.tr
                       key={i}
                       variants={tableRowVariants}
@@ -375,7 +433,7 @@ export default function PricingPage() {
                       transition={{ delay: shouldReduceMotion ? 0 : i * 0.1 + 0.5 }}
                       className="border-t even:bg-gray-50"
                     >
-                      <td className="p-4 font-medium sticky left-0 bg-white z-10">
+                      <td className="p-4 text-left font-medium sticky left-0 bg-white z-10">
                         {feature}
                       </td>
                       {memoizedPlans.map((plan, j) => (
@@ -406,18 +464,7 @@ export default function PricingPage() {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  "Basic Analytics",
-                  "Advanced Analytics",
-                  "Team Collaboration",
-                  "24/7 Priority Support",
-                  "Dedicated Account Manager",
-                  "Unlimited Projects",
-                  "Email Support",
-                  "Priority Email Support",
-                  "1 Project",
-                  "10 Projects",
-                ].map((feature, i) => (
+                {uniqueFeatures.map((feature, i) => (
                   <motion.tr
                     key={i}
                     variants={tableRowVariants}
@@ -426,9 +473,9 @@ export default function PricingPage() {
                     transition={{ delay: shouldReduceMotion ? 0 : i * 0.1 + 0.5 }}
                     className="border-t even:bg-gray-50"
                   >
-                    <td className="p-4 font-medium sticky left-0 bg-white z-10">
-                      {feature}
-                    </td>
+					<td className="p-4 font-medium text-left sticky left-0 bg-white z-10">
+					  {feature}
+					</td>
                     {memoizedPlans.map((plan, j) => (
                       <td key={j} className="p-4 text-center">
                         {plan.features.includes(feature) ? (
@@ -445,34 +492,45 @@ export default function PricingPage() {
           </div>
         </motion.section>
 
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: shouldReduceMotion ? 0 : 0.8 }}
-          className="mt-20"
-        >
-          <h2
-            className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
-          >
-            Frequently Asked Questions
-          </h2>
-          <div className="max-w-3xl mx-auto space-y-6">
-            {faqs.map((faq, i) => (
-              <motion.div
-                key={i}
-                variants={faqVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: shouldReduceMotion ? 0 : 0.2 + i * 0.1 }}
-                className="bg-white rounded-xl p-6 shadow-lg"
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
+		<motion.section className="mt-20">
+		  <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+			Frequently Asked Questions
+		  </h2>
+		  <div className="max-w-3xl mx-auto space-y-1">
+			{faqs.map((faq, i) => {
+			  const [isOpen, setIsOpen] = useState(false);
+			  
+			  return (
+				<div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden">
+				  <button
+					onClick={() => setIsOpen(!isOpen)}
+					className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors"
+					aria-expanded={isOpen}
+				  >
+					<h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
+					<div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+					  <ChevronDown className="w-5 h-5 text-indigo-600" />
+					</div>
+				  </button>
+				  
+				  <div 
+					className={`overflow-hidden transition-all duration-100 ${isOpen ? 'max-h-[500px] opacity-100 pb-6 px-6' : 'max-h-0 opacity-0'}`}
+					style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
+				  >
+					<p className="text-gray-600">{faq.answer}</p>
+				  </div>
+				</div>
+			  );
+			})}
+		  </div>
+		</motion.section>
+
       </div>
     </motion.section>
   );
 }
+
+// PropTypes for development
+PricingPage.propTypes = {
+  // Add any props if this component receives any
+};

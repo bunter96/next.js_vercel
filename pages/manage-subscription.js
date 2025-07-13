@@ -162,12 +162,43 @@ export default function ManageSubscription() {
       </div>
     );
 
-  if (!user.creem_customer_id)
-    return (
-      <div className="text-center text-gray-600 text-lg font-medium mt-10">
-        You are not subscribed to any plans.
-      </div>
-    );
+	if (!user.creem_customer_id)
+	  return (
+		<div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+		  <div className="max-w-md mx-auto text-center">
+			<div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
+			  <div className="flex justify-center mb-6">
+				<svg
+				  xmlns="http://www.w3.org/2000/svg"
+				  className="h-16 w-16 text-gray-400"
+				  fill="none"
+				  viewBox="0 0 24 24"
+				  stroke="currentColor"
+				>
+				  <path
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth={1.5}
+					d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+				  />
+				</svg>
+			  </div>
+			  <h2 className="text-2xl font-bold text-gray-800 mb-3">
+				No Active Subscription
+			  </h2>
+			  <p className="text-gray-600 mb-6">
+				You don't have any active subscriptions. Explore our plans to unlock premium features.
+			  </p>
+			  <button
+				onClick={() => window.location.href = '/pricing'}
+				className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium bg-gradient-to-r from-indigo-600 to-purple-600"
+			  >
+				View Pricing Plans
+			  </button>
+			</div>
+		  </div>
+		</div>
+	  );
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">

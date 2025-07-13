@@ -30,45 +30,6 @@ export default function ContactPage() {
   // Toast state
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
 
-  // Formik validation schema
-  const validationSchema = Yup.object({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email address').required('Email is required'),
-    phone: Yup.string().matches(/^[0-9]*$/, 'Must be only digits').min(10, 'Must be at least 10 characters if provided'),
-    message: Yup.string().required('Message is required').min(10, 'Message must be at least 10 characters'),
-  });
-
-  // Formik form handling
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      email: '',
-      phone: '',
-      message: '',
-    },
-    validationSchema,
-	onSubmit: async (values, { setSubmitting, resetForm }) => {
-	  try {
-		const response = await fetch('/api/contact', {
-		  method: 'POST',
-		  headers: { 'Content-Type': 'application/json' },
-		  body: JSON.stringify(values),
-		});
-
-		if (!response.ok) {
-		  throw new Error('Failed to submit');
-		}
-
-		showToast('Thank you! We’ll reply soon.', 'success');
-		resetForm();
-	  } catch (error) {
-		showToast('Submission failed. Please try again.', 'error');
-	  } finally {
-		setSubmitting(false);
-	  }
-	},
-  });
-
   // Show toast notification
   const showToast = (message, type) => {
     setToast({ show: true, message, type });
@@ -100,131 +61,14 @@ export default function ContactPage() {
             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
               Contact Us
             </h1>
-			<p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
-			  We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
-			</p>
+            <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+              We&apos;d love to hear from you. Here's how you can reach us.
+            </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
-            {/* Contact Form */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
-                <form onSubmit={formik.handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                      Full Name
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.name}
-                        className={`block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                          formik.touched.name && formik.errors.name ? 'border-red-500' : ''
-                        }`}
-                      />
-                      {formik.touched.name && formik.errors.name ? (
-                        <div className="mt-1 text-sm text-red-600">{formik.errors.name}</div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.email}
-                        className={`block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                          formik.touched.email && formik.errors.email ? 'border-red-500' : ''
-                        }`}
-                      />
-                      {formik.touched.email && formik.errors.email ? (
-                        <div className="mt-1 text-sm text-red-600">{formik.errors.email}</div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center">
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                        Phone Number
-                      </label>
-                      <span className="text-sm text-gray-500">Optional</span>
-                    </div>
-                    <div className="mt-1">
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.phone}
-                        className={`block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                          formik.touched.phone && formik.errors.phone ? 'border-red-500' : ''
-                        }`}
-                      />
-                      {formik.touched.phone && formik.errors.phone ? (
-                        <div className="mt-1 text-sm text-red-600">{formik.errors.phone}</div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-                      Message
-                    </label>
-                    <div className="mt-1">
-                      <textarea
-                        id="message"
-                        name="message"
-                        rows={4}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.message}
-                        className={`block w-full px-4 py-3 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                          formik.touched.message && formik.errors.message ? 'border-red-500' : ''
-                        }`}
-                      />
-                      {formik.touched.message && formik.errors.message ? (
-                        <div className="mt-1 text-sm text-red-600">{formik.errors.message}</div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div>
-                    <button
-                      type="submit"
-                      disabled={formik.isSubmitting}
-                      className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {formik.isSubmitting ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Sending...
-                        </>
-                      ) : 'Send Message'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="mt-12">
+            {/* Contact Information - now full width since form is removed */}
+            <div className="bg-white overflow-hidden shadow rounded-lg max-w-3xl mx-auto">
               <div className="px-4 py-5 sm:p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
                 
@@ -257,21 +101,7 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </div>
-                    <div className="ml-3 text-base text-gray-500">
-                      <p>Visit us at</p>
-                      <p className="font-medium text-gray-900">
-                        123 Business Ave<br />
-                        San Francisco, CA 94107
-                      </p>
-                    </div>
-                  </div>
+
                 </div>
 
                 <div className="mt-8">

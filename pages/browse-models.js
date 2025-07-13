@@ -17,19 +17,32 @@ export default function BrowseModels() {
   const { user } = useAuth();
 
   // Language options
-  const languages = [
-    { code: 'all', name: 'All Languages' },
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'zh', name: 'Chinese' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'ar', name: 'Arabic' },
-    { code: 'pt', name: 'Portuguese' },
-    { code: 'ru', name: 'Russian' },
-  ];
+	const languages = [
+	  { code: 'all', name: 'All Languages' },
+	  { code: 'en', name: 'English' },
+	  { code: 'es', name: 'Spanish' },
+	  { code: 'fr', name: 'French' },
+	  { code: 'de', name: 'German' },
+	  { code: 'ja', name: 'Japanese' },
+	  { code: 'zh', name: 'Chinese' },
+	  { code: 'hi', name: 'Hindi' },
+	  { code: 'ar', name: 'Arabic' },
+	  { code: 'pt', name: 'Portuguese' },
+	  { code: 'ru', name: 'Russian' },
+	];
+
+	const languageMap = {
+	  english: 'en',
+	  spanish: 'es',
+	  french: 'fr',
+	  german: 'de',
+	  japanese: 'ja',
+	  chinese: 'zh',
+	  hindi: 'hi',
+	  arabic: 'ar',
+	  portuguese: 'pt',
+	  russian: 'ru',
+	};
 
   // Gender options
   const genders = [
@@ -47,11 +60,11 @@ export default function BrowseModels() {
           [Query.orderDesc('$createdAt')]
         );
         
-        const modelsWithMetadata = response.documents.map(model => ({
-          ...model,
-          language: model.language || 'en',
-          gender: model.gender?.toLowerCase() || 'unknown'
-        }));
+		const modelsWithMetadata = response.documents.map(model => ({
+		  ...model,
+		  language: languageMap[model.language?.toLowerCase()] || 'en',
+		  gender: model.gender?.toLowerCase() || 'unknown',
+		}));
         
         setModels(modelsWithMetadata);
         setFilteredModels(modelsWithMetadata);

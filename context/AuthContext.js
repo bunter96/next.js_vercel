@@ -20,6 +20,16 @@ export function AuthProvider({ children }) {
         return;
       }
 
+      // Load character limits from env and parse them
+      const charAllowed = parseInt(process.env.NEXT_PUBLIC_CHAR_ALLOWED, 10) || 1000;
+      const charRemaining = parseInt(process.env.NEXT_PUBLIC_CHAR_REMAINING, 10) || 1000;
+
+      if (isNaN(charAllowed) || isNaN(charRemaining)) {
+        throw new Error(
+          'Invalid NEXT_PUBLIC_CHAR_ALLOWED or NEXT_PUBLIC_CHAR_REMAINING. They must be valid integers.'
+        );
+      }
+
       const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
       const collectionId = process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID;
 
@@ -38,15 +48,17 @@ export function AuthProvider({ children }) {
               user_email: userData.email || '',
               picture: userData.prefs?.picture || '',
               creem_customer_id: '',
-              current_active_plan: '',
+              current_active_plan: 'free',
               is_active: false,
-              char_allowed: 0,
-              char_remaining: 0,
+              char_allowed: charAllowed,
+              char_remaining: charRemaining,
               current_plan_start_date: null,
               current_plan_expiry_date: null,
               active_product_id: '',
               billing_cycle: '',
               is_admin: false,
+			  voice_clone_allowed: 1,
+			  voice_clone_used: 1,
             },
             [
               Permission.read(Role.user(userData.$id)),
@@ -120,11 +132,11 @@ export function AuthProvider({ children }) {
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+	return (
+	  <AuthContext.Provider value={{ user, loading, logout, setUser }}>
+		{children}
+	  </AuthContext.Provider>
+	);
 }
 
 export const useAuth = () => useContext(AuthContext);

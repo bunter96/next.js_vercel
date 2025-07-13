@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@stripe/stripe-js": "^7.3.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
@@ -19,7 +20,7 @@
     "cookies-next": "^6.0.0",
     "creem": "^0.3.37",
     "crypto-js": "^4.2.0",
-    "dotenv": "^17.0.1",
+    "dotenv": "^17.2.0",
     "form-data": "^4.0.2",
     "formidable": "^3.5.3",
     "formik": "^2.4.6",

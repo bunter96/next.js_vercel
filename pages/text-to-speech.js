@@ -6,10 +6,29 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/router';
 
+// Helper functions to handle Blob <-> Base64 conversion
+const blobToBase64 = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+const base64ToBlob = (base64, type) => {
+  const byteString = atob(base64.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type });
+};
+
 const HISTORY_COLLECTION_ID = '680e9bf90014579d3f5b';
 const USER_PROFILES_COLLECTION_ID = '67fecffb00075d13ade6';
 const STORAGE_BUCKET_ID = '680eaa3400394d8108bc';
-const MAX_CHARS = 1000;
 const BACKEND_URL = '/api/tts';
 const DEFAULT_CHAR_REMAINING = 5000;
 
@@ -228,9 +247,67 @@ export default function TextToSpeech() {
   const { user } = useAuth();
   const router = useRouter();
 
-  // Clear audioList on mount to avoid outdated entries
+    // Determine MAX_CHARS based on user's current_active_plan
+  const getMaxChars = () => {
+    if (!user || !user.current_active_plan) {
+      return 500; // Default to free plan if no user or plan
+    }
+    switch (user.current_active_plan.toLowerCase()) {
+      case 'free':
+        return 500;
+      case 'starter monthly':
+      case 'starter yearly':
+        return 1000;
+      case 'pro monthly':
+      case 'pro yearly':
+        return 2000;
+      case 'turbo monthly':
+      case 'turbo yearly':
+        return 3000;
+      default:
+        return 500; // Fallback to free plan limit if plan or user is Invalid
+    }
+  };
+  const MAX_CHARS = getMaxChars();
+
+  // Initialize state from sessionStorage
   useEffect(() => {
-    setAudioList([]);
+    const savedText = sessionStorage.getItem('tts_text');
+    const savedModel = sessionStorage.getItem('tts_model');
+    const savedAudioList = sessionStorage.getItem('tts_audioList');
+
+    if (savedText) {
+      setText(savedText);
+    }
+
+    if (savedModel) {
+      try {
+        setModel(JSON.parse(savedModel));
+      } catch (error) {
+        console.error('Error parsing saved model:', error);
+      }
+    }
+
+    if (savedAudioList) {
+      try {
+        const parsedAudioList = JSON.parse(savedAudioList);
+        Promise.all(
+          parsedAudioList.map(async (audio) => {
+            if (audio.base64) {
+              const blob = await base64ToBlob(audio.base64, 'audio/mpeg');
+              const url = URL.createObjectURL(blob);
+              return { ...audio, blob, url, base64: undefined };
+            }
+            return audio;
+          })
+        ).then((restoredAudioList) => {
+          setAudioList(restoredAudioList);
+        });
+      } catch (error) {
+        console.error('Error restoring audio list:', error);
+      }
+    }
+
     return () => {
       // Revoke blob URLs on unmount
       audioList.forEach((audio) => {
@@ -238,6 +315,31 @@ export default function TextToSpeech() {
       });
     };
   }, []);
+
+  // Save state to sessionStorage when it changes
+  useEffect(() => {
+    sessionStorage.setItem('tts_text', text);
+  }, [text]);
+
+  useEffect(() => {
+    sessionStorage.setItem('tts_model', model ? JSON.stringify(model) : '');
+  }, [model]);
+
+  useEffect(() => {
+    const saveAudioList = async () => {
+      const audioListWithBase64 = await Promise.all(
+        audioList.map(async (audio) => {
+          if (audio.blob) {
+            const base64 = await blobToBase64(audio.blob);
+            return { ...audio, base64, blob: undefined, url: undefined };
+          }
+          return audio;
+        })
+      );
+      sessionStorage.setItem('tts_audioList', JSON.stringify(audioListWithBase64));
+    };
+    saveAudioList();
+  }, [audioList]);
 
   const handleConvert = async () => {
     if (!user) {
@@ -298,7 +400,7 @@ export default function TextToSpeech() {
             Insufficient character quota ({textLength} characters needed, {charRemaining} available).{' '}
             <span
               className="underline cursor-pointer"
-              onClick={() => router.push('/plans')}
+              onClick={() => router.push('/pricing')}
             >
               Upgrade your plan
             </span>
@@ -385,6 +487,39 @@ export default function TextToSpeech() {
       return;
     }
 
+    // Check if user is on a free plan
+    try {
+      const profileResponse = await databases.listDocuments(
+        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
+        [Query.equal('userId', user.$id)]
+      );
+      const profile = profileResponse.documents[0];
+
+      if (profile.current_active_plan === 'free') {
+        toast.error(
+          <>
+            Your current plan does not allow saving audio.{' '}
+            <span
+              className="underline cursor-pointer"
+              onClick={() => router.push('/pricing')}
+            >
+              Upgrade your plan
+            </span>
+            .
+          </>,
+          {
+            position: 'top-right',
+            autoClose: 5000,
+          }
+        );
+        return;
+      }
+    } catch (profileError) {
+      toast.error(`Failed to check user plan: ${profileError.message}`);
+      return;
+    }
+
     if (savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id)) {
       return;
     }
@@ -431,7 +566,7 @@ export default function TextToSpeech() {
       if (error.message.includes('blob') || error.message.includes('size')) {
         toast.error('Failed to save audio: Invalid or missing audio file.');
       } else if (error.code === 404) {
-        toast.error('Failed to save audio history: History collection not found.');
+        toast.error('Failed to save audio: History collection not found.');
       } else if (error.code === 403) {
         toast.error('Failed to save audio: Permission denied.');
       } else if (error.code === 400) {

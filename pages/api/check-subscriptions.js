@@ -7,10 +7,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const client = new new sdk.Client()
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+	const client = new sdk.Client() // Corrected line!
+	  .setEndpoint(process.env.APPWRITE_ENDPOINT)
+	  .setProject(process.env.APPWRITE_PROJECT_ID)
+	  .setKey(process.env.APPWRITE_API_KEY);
 
   const database = new sdk.Databases(client);
   const dbId = process.env.APPWRITE_DATABASE_ID;

@@ -1,5 +1,7 @@
+// manage-subscription.js
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import ConfirmationModal from '../components/ConfirmationModal'; // <--- Import the new modal
 
 export default function ManageSubscription() {
   const { user, loading, refreshUser } = useAuth();
@@ -9,6 +11,9 @@ export default function ManageSubscription() {
   const [loadingSub, setLoadingSub] = useState(true);
   const [isGeneratingPortal, setIsGeneratingPortal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+
+  // New state for cancellation modal
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   // Load subscription data
   useEffect(() => {
@@ -36,7 +41,7 @@ export default function ManageSubscription() {
     }
   }, [user]);
 
-  // Handle Manage Subscription button click
+  // Handle Manage Subscription button click (no change to this part)
   const handleManageSubscription = async () => {
     if (!user.creem_customer_id) {
       setApiError('No customer ID available');
@@ -75,13 +80,8 @@ export default function ManageSubscription() {
     }
   };
 
-  // Handle Cancel Subscription button click
-  const handleCancelSubscription = async () => {
-    if (!user.creem_subscription_id) {
-      setApiError('No subscription ID available');
-      return;
-    }
-
+  // New function to handle the actual cancellation API call
+  const executeCancelSubscription = async () => {
     setIsCanceling(true);
     setApiError(null);
     try {
@@ -125,7 +125,18 @@ export default function ManageSubscription() {
       setApiError(`Failed to cancel subscription: ${err.message}`);
     } finally {
       setIsCanceling(false);
+      setIsCancelModalOpen(false); // Close the modal regardless of success/failure
     }
+  };
+
+  // Modified handleCancelSubscription to open the modal
+  const handleCancelSubscription = () => {
+    if (!user.creem_subscription_id) {
+      setApiError('No subscription ID available');
+      return;
+    }
+    // Open the confirmation modal instead of directly canceling
+    setIsCancelModalOpen(true);
   };
 
   if (loading || loadingSub)
@@ -296,7 +307,7 @@ export default function ManageSubscription() {
                 )}
               </button>
               <button
-                onClick={handleCancelSubscription}
+                onClick={handleCancelSubscription} // This now opens the modal
                 disabled={isGeneratingPortal || isCanceling}
                 className={`w-full px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center justify-center ${
                   (isGeneratingPortal || isCanceling) ? 'opacity-50 cursor-not-allowed' : ''
@@ -338,6 +349,17 @@ export default function ManageSubscription() {
           </p>
         )}
       </div>
+
+      {/* Confirmation Modal for Cancellation */}
+      <ConfirmationModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={executeCancelSubscription} // Call the actual cancellation logic on confirm
+        title="Confirm Cancellation"
+        message="Are you sure you want to cancel your subscription? This action cannot be undone."
+        confirmButtonText="Yes, Cancel"
+        cancelButtonText="No, Keep It"
+      />
     </div>
   );
 }

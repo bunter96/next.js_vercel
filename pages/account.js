@@ -1,3 +1,4 @@
+// account.js
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
@@ -5,6 +6,7 @@ import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { account, databases, storage, ID } from '@/lib/appwriteConfig';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ConfirmationModal from '../components/ConfirmationModal'; // <--- Import the ConfirmationModal
 
 // Profile component for displaying and managing user account details
 const Profile = () => {
@@ -17,6 +19,10 @@ const Profile = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSendingVerification, setIsSendingVerification] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // New state for delete account confirmation modal
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+
   // Commented out Edit Profile state for future use
   /*
   const [isEditing, setIsEditing] = useState(false);
@@ -27,7 +33,7 @@ const Profile = () => {
   });
   const [formErrors, setFormErrors] = useState({ name: '', file: '' });
   const [isSaving, setIsSaving] = useState(false);
-  const [previewSrc, setPreviewSrc] = useState(null);
+  const [previewSrc, setPreviewSrc] = null);
   */
 
   // Redirect to login if not authenticated, or handle post-logout redirect
@@ -261,8 +267,8 @@ const Profile = () => {
     }
   };
 
-  // Delete user account via API
-  const handleDeleteAccount = async () => {
+  // Function to execute account deletion (called after confirmation)
+  const executeDeleteAccount = async () => {
     setIsDeleting(true);
     try {
       const response = await fetch('/api/delete-account', {
@@ -293,7 +299,13 @@ const Profile = () => {
       });
     } finally {
       setIsDeleting(false);
+      setIsDeleteAccountModalOpen(false); // Close the modal regardless of success/failure
     }
+  };
+
+  // Modified handleDeleteAccount to open the modal
+  const handleDeleteAccountClick = () => {
+    setIsDeleteAccountModalOpen(true);
   };
 
   // Log out all sessions, refresh, and redirect to home
@@ -595,7 +607,7 @@ const Profile = () => {
             Deleting your account will permanently remove all associated data, including your profile, sessions, audio generations, and cloned voices. This action cannot be undone.
           </p>
           <button
-            onClick={handleDeleteAccount}
+            onClick={handleDeleteAccountClick} // This now opens the modal
             className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
             disabled={isDeleting}
           >
@@ -610,6 +622,17 @@ const Profile = () => {
           </button>
         </div>
       </div>
+
+      {/* Confirmation Modal for Delete Account */}
+      <ConfirmationModal
+        isOpen={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+        onConfirm={executeDeleteAccount} // Call the actual deletion logic on confirm
+        title="Confirm Account Deletion"
+        message="Are you absolutely sure you want to delete your account? This action is irreversible and will permanently remove all your data."
+        confirmButtonText="Delete"
+        cancelButtonText="No"
+      />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+// pricing.js
 import { useState, useMemo } from "react";
 import PropTypes from 'prop-types';
 import { motion, useReducedMotion } from "framer-motion";
@@ -5,6 +6,7 @@ import { CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
 import { account } from '../lib/appwriteConfig';
 import { toast } from 'react-hot-toast';
+import SubscriptionChangeModal from '../components/SubscriptionChangeModal'; // Make sure this path is correct
 
 // Utility functions
 const debounce = (func, wait) => {
@@ -36,8 +38,8 @@ const getAllUniqueFeatures = (plans) => {
 const plans = [
   {
     title: "Starter",
-    monthly: formatCurrency(9),
-    yearly: formatCurrency(86), // 20% discount on $9*12
+    monthly: formatCurrency(5),
+    yearly: formatCurrency(48),
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "Perfect for individuals starting out",
@@ -50,13 +52,13 @@ const plans = [
     ],
     cta: "Get Started",
     featured: false,
-    monthlyId: process.env.REACT_APP_STRIPE_STARTER_MONTHLY || "prod_3d6z0m8mKmzuV6LvPwc0jf",
-    yearlyId: process.env.REACT_APP_STRIPE_STARTER_YEARLY || "prod_3hWM6T8Iu8GZsUFsyQgrnB",
+    monthlyId: process.env.NEXT_PUBLIC_CREEM_STARTER_MONTHLY_PRODUCT_ID,
+    yearlyId: process.env.NEXT_PUBLIC_CREEM_STARTER_YEARLY_PRODUCT_ID,
   },
   {
     title: "Pro",
-    monthly: formatCurrency(29),
-    yearly: formatCurrency(278), // 20% discount on $29*12
+    monthly: formatCurrency(10),
+    yearly: formatCurrency(96),
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "Ideal for growing teams and businesses",
@@ -72,13 +74,13 @@ const plans = [
     ],
     cta: "Upgrade Now",
     featured: true,
-    monthlyId: process.env.REACT_APP_STRIPE_PRO_MONTHLY || "prod_1308g86Vz0IIqbZgpPa9o4",
-    yearlyId: process.env.REACT_APP_STRIPE_PRO_YEARLY || "prod_1B1DSJwW6nBTYgQYFsxP7",
+    monthlyId: process.env.NEXT_PUBLIC_CREEM_PRO_MONTHLY_PRODUCT_ID,
+    yearlyId: process.env.NEXT_PUBLIC_CREEM_PRO_YEARLY_PRODUCT_ID,
   },
   {
     title: "Turbo",
-    monthly: formatCurrency(50),
-    yearly: formatCurrency(480), // 20% discount on $50*12
+    monthly: formatCurrency(20),
+    yearly: formatCurrency(192),
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "High-performance plan for scaling businesses",
@@ -96,11 +98,10 @@ const plans = [
     ],
     cta: "Get Turbo",
     featured: false,
-    monthlyId: process.env.REACT_APP_STRIPE_TURBO_MONTHLY || "prod_xNBLeAW61WSH5dmRcBxPP",
-    yearlyId: process.env.REACT_APP_STRIPE_TURBO_YEARLY || "prod_23qN6cgjlpiCtD3OfY2JqH",
+    monthlyId: process.env.NEXT_PUBLIC_CREEM_TURBO_MONTHLY_PRODUCT_ID,
+    yearlyId: process.env.NEXT_PUBLIC_CREEM_TURBO_YEARLY_PRODUCT_ID,
   },
 ];
-
 
 // Animation variants
 const containerVariants = {
@@ -167,52 +168,55 @@ export default function PricingPage() {
   const shouldReduceMotion = useReducedMotion();
   const [openIndex, setOpenIndex] = useState(null);
 
+  // New state for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [planToChangeTo, setPlanToChangeTo] = useState(null); // Stores the plan user wants to subscribe to
+
   // Memoized values
   const memoizedPlans = useMemo(() => plans, []);
   const uniqueFeatures = [
-  "Monthly credits",
-  "Voice cloning",
-  "Numbe of Hours speech",
-  "Analytics",
-  "Audio Download",
-  "Commercial use",
-  "Characters per conversion",
-  "Generated file storage",
-  "Priority generation",
-  "Enhance reference audio",
-];
+    "Monthly credits",
+    "Voice cloning",
+    "Numbe of Hours speech",
+    "Analytics",
+    "Audio Download",
+    "Commercial use",
+    "Characters per conversion",
+    "Generated file storage",
+    "Priority generation",
+    "Enhance reference audio",
+  ];
   const activePlanId = useMemo(() => user?.active_product_id || null, [user]);
 
-  const handleSubscribe = debounce(async (plan) => {
-    if (!user) {
-      toast.error("Please log in to subscribe.", { duration: 2500 });
-      setTimeout(() => (window.location.href = '/login'), 800);
-      return;
+  // Find the active plan object if subscribed
+  const currentActivePlan = useMemo(() => {
+    if (!activePlanId) return null;
+    for (const plan of plans) {
+      if (plan.monthlyId === activePlanId) return { ...plan, type: 'monthly' };
+      if (plan.yearlyId === activePlanId) return { ...plan, type: 'yearly' };
     }
+    return null;
+  }, [activePlanId, plans]);
 
+
+  // Helper function to actually process the subscription
+  const processSubscription = async (plan) => {
     try {
       setLoading(plan.title);
-      
-      const planId = yearly ? plan.yearlyId : plan.monthlyId;
-      if (activePlanId === planId) {
-        toast("You're already subscribed to this plan!", { 
-          duration: 3000,
-          icon: 'ℹ️',
-        });
-        return;
-      }
+
+      const newPlanId = yearly ? plan.yearlyId : plan.monthlyId;
 
       const jwtResponse = await account.createJWT();
       if (!jwtResponse?.jwt) throw new Error('Failed to create authentication token');
 
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'X-Appwrite-JWT': jwtResponse.jwt,
         },
-        body: JSON.stringify({ 
-          planId, 
+        body: JSON.stringify({
+          planId: newPlanId,
           billingCycle: yearly ? 'yearly' : 'monthly',
           fullPlanName: `${plan.title} ${yearly ? 'Yearly' : 'Monthly'}`,
         }),
@@ -225,17 +229,57 @@ export default function PricingPage() {
 
       const { url } = await response.json();
       if (!url) throw new Error('Missing checkout URL');
-      
+
       window.location.href = url;
     } catch (error) {
       console.error('Subscription error:', error);
-      toast.error(error.message || 'Failed to start subscription. Please try again.', { 
+      toast.error(error.message || 'Failed to start subscription. Please try again.', {
         duration: 3000,
       });
     } finally {
       setLoading(null);
+      setIsModalOpen(false); // Close modal on completion/error
+      setPlanToChangeTo(null);
     }
+  };
+
+
+  const handleSubscribe = debounce(async (plan) => {
+    if (!user) {
+      toast.error("Please log in to subscribe.", { duration: 2500 });
+      setTimeout(() => (window.location.href = '/login'), 800);
+      return;
+    }
+
+    const newPlanId = yearly ? plan.yearlyId : plan.monthlyId;
+
+    // Check if the user is already subscribed to this exact plan
+    if (activePlanId === newPlanId) {
+      toast("You're already subscribed to this plan!", {
+        duration: 3000,
+        icon: 'ℹ️',
+      });
+      return;
+    }
+
+    // If user has an active plan, open the modal for confirmation
+    if (currentActivePlan) {
+      setPlanToChangeTo(plan); // Store the plan details for the modal
+      setIsModalOpen(true);    // Open the modal
+      return; // Stop here, wait for modal confirmation
+    }
+
+    // If no active plan, proceed directly
+    processSubscription(plan);
+
   }, 300);
+
+  // Function to call when user confirms in the modal
+  const handleModalConfirm = () => {
+    if (planToChangeTo) {
+      processSubscription(planToChangeTo);
+    }
+  };
 
   // Runtime prop-type checking in development
   if (process.env.NODE_ENV === 'development') {
@@ -306,7 +350,7 @@ export default function PricingPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-		  viewport={{ once: true, margin: "100px" }}
+          viewport={{ once: true, margin: "100px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10"
         >
           {memoizedPlans.map((plan, idx) => {
@@ -474,9 +518,9 @@ export default function PricingPage() {
                     transition={{ delay: shouldReduceMotion ? 0 : i * 0.1 + 0.5 }}
                     className="border-t even:bg-gray-50"
                   >
-					<td className="p-4 font-medium text-left sticky left-0 bg-white z-10">
-					  {feature}
-					</td>
+                    <td className="p-4 font-medium text-left sticky left-0 bg-white z-10">
+                      {feature}
+                    </td>
                     {memoizedPlans.map((plan, j) => (
                       <td key={j} className="p-4 text-center">
                         {plan.features.includes(feature) ? (
@@ -493,40 +537,52 @@ export default function PricingPage() {
           </div>
         </motion.section>
 
-    <motion.section className="mt-20">
-      <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-        Frequently Asked Questions
-      </h2>
-      <div className="max-w-3xl mx-auto space-y-1">
-        {faqs.map((faq, i) => {
-          const isOpen = openIndex === i;
+        <motion.section className="mt-20">
+          <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+            Frequently Asked Questions
+          </h2>
+          <div className="max-w-3xl mx-auto space-y-1">
+            {faqs.map((faq, i) => {
+              const isOpen = openIndex === i;
 
-          return (
-            <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <button
-                onClick={() => setOpenIndex(isOpen ? null : i)}
-                className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors"
-                aria-expanded={isOpen}
-              >
-                <h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
-                <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-                  <ChevronDown className="w-5 h-5 text-indigo-600" />
+              return (
+                <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => setOpenIndex(isOpen ? null : i)}
+                    className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors"
+                    aria-expanded={isOpen}
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
+                    <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                      <ChevronDown className="w-5 h-5 text-indigo-600" />
+                    </div>
+                  </button>
+
+                  <div
+                    className={`overflow-hidden transition-all duration-100 ${isOpen ? 'max-h-[500px] opacity-100 pb-6 px-6' : 'max-h-0 opacity-0'}`}
+                    style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
+                  >
+                    <p className="text-gray-600">{faq.answer}</p>
+                  </div>
                 </div>
-              </button>
-
-              <div
-                className={`overflow-hidden transition-all duration-100 ${isOpen ? 'max-h-[500px] opacity-100 pb-6 px-6' : 'max-h-0 opacity-0'}`}
-                style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
-              >
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </motion.section>
       </div>
-    </motion.section>
 
-      </div>
+      {/* Place the modal component at the end of your PricingPage's JSX, but inside the main section/div */}
+      <SubscriptionChangeModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setPlanToChangeTo(null); // Clear the stored plan if modal is closed
+        }}
+        currentPlan={currentActivePlan}
+        newPlan={planToChangeTo || {}} // Pass the new plan data to the modal
+        newBillingCycle={yearly ? 'yearly' : 'monthly'}
+        onConfirm={handleModalConfirm}
+      />
     </motion.section>
   );
 }

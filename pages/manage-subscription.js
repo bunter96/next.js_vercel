@@ -194,7 +194,7 @@ export default function ManageSubscription() {
               No Active Subscription
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              You don't have any active subscriptions. Explore our plans to unlock premium features.
+              You don&rsquo;t have any active subscriptions. Explore our plans to unlock premium features.
             </p>
             <button
               onClick={() => window.location.href = '/pricing'}

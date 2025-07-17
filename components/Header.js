@@ -1,3 +1,4 @@
+// components/Header.js
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -7,8 +8,9 @@ import {
   Home, Box, AudioWaveform, Copy, DollarSign, Menu, X, LogOut,
   User, Settings, CreditCard, HelpCircle, History, BarChart2
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext'; // Corrected import path for AuthContext
 import { account, databases } from '@/lib/appwriteConfig';
+import DarkModeToggle from './DarkModeToggle'; // Import the DarkModeToggle component
 
 // CapsuleQuotaIndicator Component
 function CapsuleQuotaIndicator({ used, total }) {
@@ -16,10 +18,10 @@ function CapsuleQuotaIndicator({ used, total }) {
   const percent = (used / total) * 100;
 
   return (
-    <div className="flex flex-col items-center justify-center text-xs font-medium text-gray-700">
-      <div className="bg-gray-100 rounded-full px-3 py-1 flex items-center shadow-sm">
+    <div className="flex flex-col items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300"> {/* Dark mode text */}
+      <div className="bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1 flex items-center shadow-sm"> {/* Dark mode background */}
         <span className="mr-2 whitespace-nowrap">{remaining} credits</span>
-        <div className="relative w-20 h-2 bg-gray-300 rounded-full overflow-hidden">
+        <div className="relative w-20 h-2 bg-gray-300 dark:bg-gray-600 rounded-full overflow-hidden"> {/* Dark mode background */}
           <div
             className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-500"
             style={{ width: `${percent}%` }}
@@ -116,24 +118,25 @@ export default function Header() {
 
   if (!isClient) {
     return (
-      <header className="bg-white sticky top-0 z-50 shadow">
+      <header className="bg-white dark:bg-gray-900 sticky top-0 z-50 shadow dark:shadow-lg transition-colors duration-300"> {/* Dark mode backgrounds and shadow */}
         <div className="w-full px-4 py-3 flex items-center justify-between">
-          <div className="w-40 h-8 bg-gray-200 rounded"></div>
-          <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+          <div className="w-40 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div> {/* Dark mode background */}
+          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div> {/* Dark mode background */}
         </div>
       </header>
     );
   }
 
   return (
-    <header className="bg-white sticky top-0 z-50 shadow">
+    <header className="bg-white dark:bg-gray-900 sticky top-0 z-50 shadow dark:shadow-lg transition-colors duration-300"> {/* Dark mode backgrounds and shadow */}
       <div className="w-full px-7 py-4 flex items-center">
         {/* Logo */}
         <div className="w-[20%] flex items-center">
           <Link href="/" legacyBehavior>
             <a className="flex items-center space-x-2">
-              <img src="/logo.png" alt="Logo" className="h-9" />
-              <span className="text-xl font-bold text-black whitespace-nowrap">LowCost TTS</span>
+              {/* Consider a dark mode version of your logo if it has light elements */}
+              <img src="/logo.png" alt="Logo" className="h-9 dark:invert" /> {/* Example: invert for dark mode if logo is light */}
+              <span className="text-xl font-bold text-black dark:text-white whitespace-nowrap">LowCost TTS</span> {/* Dark mode text */}
             </a>
           </Link>
         </div>
@@ -142,7 +145,7 @@ export default function Header() {
         <nav className="w-[60%] justify-center space-x-2 hidden md:flex">
           {menuItems.map(({ href, label, icon }) => (
             <Link href={href} key={href} legacyBehavior>
-              <a className={`flex items-center px-4 py-1 rounded-md font-semibold text-base leading-9 text-black ${isActive(href) ? 'bg-gray-100' : 'hover:bg-gray-50'}`}>
+              <a className={`flex items-center px-4 py-1 rounded-md font-semibold text-base leading-9 text-black dark:text-gray-200 ${isActive(href) ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}> {/* Dark mode text and hover/active backgrounds */}
                 {icon}
                 <span className="ml-2">{label}</span>
               </a>
@@ -157,41 +160,42 @@ export default function Header() {
           </div>
         )}
 
-        {/* Account Menu / Sign In */}
-        <div className="absolute right-7 flex items-center space-x-1">
+        {/* Account Menu / Sign In / Dark Mode Toggle */}
+        <div className="absolute right-7 flex items-center space-x-3"> {/* Increased space for toggle */}
           {loading ? (
-            <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse">
+			</div>
           ) : user ? (
             <div className="relative" ref={accountMenuRef}>
               <button onClick={toggleAccountMenu} className="flex items-center focus:outline-none">
                 {user.prefs?.picture ? (
-                  <img src={user.prefs.picture} alt="Profile" className="w-10 h-10 rounded-full border-2 border-gray-200 hover:border-blue-400 transition-colors" />
+                  <img src={user.prefs.picture} alt="Profile" className="w-10 h-10 rounded-full border-2 border-gray-200 hover:border-blue-400 transition-colors dark:border-gray-600 dark:hover:border-blue-300" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-700 border-2 border-gray-200 hover:border-blue-400 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-700 border-2 border-gray-200 hover:border-blue-400 transition-colors dark:text-gray-300 dark:border-gray-600 dark:hover:border-blue-300"> {/* Dark mode background, text, border */}
                     {user.name?.[0] || user.email?.[0] || 'U'}
                   </div>
                 )}
               </button>
               {accountMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900 truncate">{user.name || 'My Account'}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email || ''}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-100 dark:border-gray-700"> {/* Dark mode backgrounds and border */}
+                  <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700"> {/* Dark mode border */}
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.name || 'My Account'}</p> {/* Dark mode text */}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email || ''}</p> {/* Dark mode text */}
                   </div>
                   <div className="py-1">
                     {accountMenuItems.map(({ href, label, icon }) => (
                       <Link href={href} key={href} legacyBehavior>
-                        <a className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <a className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"> {/* Dark mode text and hover background */}
                           {icon}
                           <span className="ml-2">{label}</span>
                         </a>
                       </Link>
                     ))}
                   </div>
-                  <div className="py-1 border-t border-gray-100">
+                  <div className="py-1 border-t border-gray-100 dark:border-gray-700">
                     <button
                       onClick={logout}
-                      className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                      className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:text-red-400 dark:hover:bg-gray-700"
                     >
                       <LogOut className="w-4 h-4" />
                       <span className="ml-2">Sign out</span>
@@ -209,8 +213,10 @@ export default function Header() {
             </button>
           )}
 
+          <DarkModeToggle /> {/* Render the DarkModeToggle here */}
+
           {/* Mobile Toggle */}
-          <button onClick={toggleMobileMenu} className="md:hidden text-gray-700 focus:outline-none ml-2" aria-label="Toggle menu">
+          <button onClick={toggleMobileMenu} className="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none ml-2" aria-label="Toggle menu"> {/* Dark mode text */}
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -218,11 +224,11 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div ref={mobileMenuRef} className="md:hidden bg-white shadow-lg mx-2 rounded-b-lg overflow-hidden">
+        <div ref={mobileMenuRef} className="md:hidden bg-white dark:bg-gray-800 shadow-lg mx-2 rounded-b-lg overflow-hidden"> {/* Dark mode background */}
           <nav className="flex flex-col py-2">
             {menuItems.map(({ href, label, icon }) => (
               <Link href={href} key={href} legacyBehavior>
-                <a className={`flex items-center px-4 py-3 text-sm font-medium ${isActive(href) ? 'bg-gray-100' : 'hover:bg-gray-50'}`}>
+                <a className={`flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 ${isActive(href) ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}> {/* Dark mode text and hover/active backgrounds */}
                   <span className="mr-3">{icon}</span>
                   {label}
                 </a>
@@ -231,16 +237,16 @@ export default function Header() {
           </nav>
 
           {user && !loading && charUsed !== null && charTotal !== null && (
-            <div className="border-t border-gray-200 py-2 px-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 py-2 px-4"> {/* Dark mode border */}
               <CapsuleQuotaIndicator used={charUsed} total={charTotal} />
             </div>
           )}
 
-          <div className="border-t border-gray-200 py-2">
+          <div className="border-t border-gray-200 dark:border-gray-700 py-2"> {/* Dark mode border */}
             {loading ? (
               <div className="px-4 py-3 flex items-center">
-                <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse mr-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mr-3"></div> {/* Dark mode background */}
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div> {/* Dark mode background */}
               </div>
             ) : user ? (
               <>
@@ -248,18 +254,18 @@ export default function Header() {
                   {user.prefs?.picture ? (
                     <img src={user.prefs.picture} alt="Profile" className="w-8 h-8 rounded-full mr-3" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-700 mr-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300 mr-3"> {/* Dark mode background and text */}
                       {user.name?.[0] || user.email?.[0] || 'U'}
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{user.name || 'My Account'}</p>
-                    <p className="text-xs text-gray-500">{user.email || ''}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name || 'My Account'}</p> {/* Dark mode text */}
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email || ''}</p> {/* Dark mode text */}
                   </div>
                 </div>
                 {accountMenuItems.map(({ href, label, icon }) => (
                   <Link href={href} key={href} legacyBehavior>
-                    <a className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100">
+                    <a className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700"> {/* Dark mode text, hover background, border */}
                       <span className="mr-3">{icon}</span>
                       {label}
                     </a>
@@ -267,7 +273,7 @@ export default function Header() {
                 ))}
                 <button
                   onClick={logout}
-                  className="flex w-full items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-gray-50 border-t border-gray-100"
+                  className="flex w-full items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-gray-50 dark:text-red-400 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700"
                 >
                   <LogOut className="w-5 h-5 mr-3" />
                   Sign out
@@ -276,7 +282,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={handleLogin}
-                className="w-full text-left px-4 py-3 text-sm font-medium text-blue-600 hover:bg-gray-50 border-t border-gray-100"
+                className="w-full text-left px-4 py-3 text-sm font-medium text-blue-600 hover:bg-gray-50 dark:text-blue-400 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700"
               >
                 Sign In
               </button>

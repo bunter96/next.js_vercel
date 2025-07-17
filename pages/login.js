@@ -10,7 +10,7 @@ import Head from 'next/head';
 const Login = () => {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { verify } = router.query; // Check for verify=true
+  const { verify } = router.query;
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [activeTab, setActiveTab] = useState('google');
   const [email, setEmail] = useState('');
@@ -137,8 +137,8 @@ const Login = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="w-16 h-16 border-4 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -154,30 +154,30 @@ const Login = () => {
         <meta name="description" content="Sign in to your account" />
       </Head>
       <ToastContainer />
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
-            <svg className="w-12 h-12 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-12 h-12 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             Welcome back
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
             Sign in to access your account
           </p>
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
-            <div className="flex space-x-4 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+            <div className="flex space-x-4 border-b border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setActiveTab('google')}
                 className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm ${
                   activeTab === 'google'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
                 }`}
               >
                 Continue with Google
@@ -186,8 +186,8 @@ const Login = () => {
                 onClick={() => setActiveTab('email')}
                 className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm ${
                   activeTab === 'email'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
                 }`}
               >
                 Email & Password
@@ -199,7 +199,9 @@ const Login = () => {
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={isSigningIn}
-                  className="w-full flex justify-center items-center px-4 py-3 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                  className={`w-full flex justify-center items-center px-4 py-3 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-indigo-500 transition-all duration-200 ${
+                    isSigningIn ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                     <path
@@ -224,21 +226,21 @@ const Login = () => {
                 <div className="mt-6">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
+                      <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">
+                      <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                         New to our platform?
                       </span>
                     </div>
                   </div>
                   <div className="mt-6">
-					<Link
-					  href="/create-account"
-					  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-					>
-					  Create an account
-					</Link>
+                    <Link
+                      href="/create-account"
+                      className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-indigo-500"
+                    >
+                      Create an account
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -248,7 +250,7 @@ const Login = () => {
               <form onSubmit={handleEmailSignIn} className="mt-8 space-y-6">
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                       Email address
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
@@ -260,9 +262,9 @@ const Login = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className={`block w-full pr-10 sm:text-sm rounded-md py-3 ${
-                          errors.email 
-                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                            : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                          errors.email
+                            ? 'border-red-300 dark:border-red-600 text-red-900 dark:text-red-400 placeholder-red-300 dark:placeholder-red-400 focus:outline-none focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400'
+                            : 'border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-indigo-500'
                         }`}
                         placeholder="you@example.com"
                         aria-invalid={!!errors.email}
@@ -270,20 +272,20 @@ const Login = () => {
                       />
                       {errors.email && (
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <svg className="h-5 w-5 text-red-500 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </div>
                       )}
                     </div>
                     {errors.email && (
-                      <p className="mt-2 text-sm text-red-600" id="email-error">
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400" id="email-error">
                         {errors.email}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                       Password
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
@@ -295,9 +297,9 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className={`block w-full pr-10 sm:text-sm rounded-md py-3 ${
-                          errors.password 
-                            ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                            : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                          errors.password
+                            ? 'border-red-300 dark:border-red-600 text-red-900 dark:text-red-400 placeholder-red-300 dark:placeholder-red-400 focus:outline-none focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400'
+                            : 'border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-indigo-500'
                         }`}
                         placeholder="••••••••"
                         aria-invalid={!!errors.password}
@@ -307,7 +309,7 @@ const Login = () => {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          className="text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-indigo-500"
                         >
                           {showPassword ? (
                             <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -324,7 +326,7 @@ const Login = () => {
                       </div>
                     </div>
                     {errors.password && (
-                      <p className="mt-2 text-sm text-red-600" id="password-error">
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400" id="password-error">
                         {errors.password}
                       </p>
                     )}
@@ -333,7 +335,7 @@ const Login = () => {
 
                 <div className="flex items-center justify-end">
                   <div className="text-sm">
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
                       Forgot your password?
                     </a>
                   </div>
@@ -343,7 +345,9 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={isSigningIn}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                    className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-indigo-500 transition-all duration-200 ${
+                      isSigningIn ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
                     {isSigningIn ? (
                       <>
@@ -359,21 +363,21 @@ const Login = () => {
                 <div className="mt-6">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
+                      <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">
+                      <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                         New to our platform?
                       </span>
                     </div>
                   </div>
                   <div className="mt-6">
-					<Link
-					  href="/create-account"
-					  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-					>
-					  Create an account
-					</Link>
+                    <Link
+                      href="/create-account"
+                      className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-indigo-500"
+                    >
+                      Create an account
+                    </Link>
                   </div>
                 </div>
               </form>

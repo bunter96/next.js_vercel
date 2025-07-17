@@ -1,4 +1,3 @@
-// account.js
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
@@ -6,7 +5,7 @@ import Image from 'next/image';
 import { toast } from 'react-toastify';
 import { account, databases, storage, ID } from '@/lib/appwriteConfig';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import ConfirmationModal from '../components/ConfirmationModal'; // <--- Import the ConfirmationModal
+import ConfirmationModal from '../components/ConfirmationModal';
 
 // Profile component for displaying and managing user account details
 const Profile = () => {
@@ -299,7 +298,7 @@ const Profile = () => {
       });
     } finally {
       setIsDeleting(false);
-      setIsDeleteAccountModalOpen(false); // Close the modal regardless of success/failure
+      setIsDeleteAccountModalOpen(false);
     }
   };
 
@@ -317,7 +316,6 @@ const Profile = () => {
         position: 'top-right',
         autoClose: 1000,
       });
-      // Refresh the app to clear state
       window.location.reload();
     } catch (error) {
       console.error('Logout failed:', error);
@@ -342,7 +340,7 @@ const Profile = () => {
   // Show LoadingSpinner during auth or session fetch
   if (authLoading || fetchLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <LoadingSpinner />
       </div>
     );
@@ -354,11 +352,11 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full space-y-6">
         {/* Profile Card */}
-        <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-32"></div>
+        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-indigo-600 dark:to-purple-600 h-32"></div>
           <div className="flex justify-center -mt-16">
             <div className="relative">
               <Image
@@ -366,20 +364,20 @@ const Profile = () => {
                 alt="Profile picture"
                 width={120}
                 height={120}
-                className="rounded-full border-4 border-white shadow-md"
+                className="rounded-full border-4 border-white dark:border-gray-800 shadow-md"
                 onError={() => setImageSrc('/default-avatar.png')}
               />
             </div>
           </div>
           <div className="text-center px-6 py-4">
-            <h2 className="text-2xl font-bold text-gray-900">{user.name || 'User'}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.name || 'User'}</h2>
             <div className="mt-2 flex justify-center items-center space-x-2">
-              <p className="text-gray-600">{user.email}</p>
+              <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
                   user.emailVerification
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-500'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100'
+                    : 'bg-red-100 text-red-500 dark:bg-red-700 dark:text-red-100'
                 }`}
               >
                 {user.emailVerification ? 'Verified' : 'Unverified'}
@@ -390,13 +388,13 @@ const Profile = () => {
                 <button
                   onClick={handleSendVerification}
                   disabled={isSendingVerification}
-                  className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors ${
+                  className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors ${
                     isSendingVerification ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   {isSendingVerification ? (
                     <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-white dark:border-gray-200 border-t-transparent rounded-full animate-spin"></div>
                       <span className="ml-2">Sending...</span>
                     </div>
                   ) : (
@@ -419,7 +417,7 @@ const Profile = () => {
             */}
             <button
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 transition-colors"
             >
               Log Out
             </button>
@@ -428,18 +426,18 @@ const Profile = () => {
 
         {/* Full-screen modal for verification email */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
                 Verification Email Sent
               </h3>
-              <p className="text-gray-600 text-center">
+              <p className="text-gray-600 dark:text-gray-300 text-center">
                 An email verification mail is sent to your registered email. Check your inbox to verify it.
               </p>
               <div className="mt-6">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 transition-colors"
                 >
                   OK
                 </button>
@@ -550,37 +548,37 @@ const Profile = () => {
         */}
 
         {/* Session Details */}
-        <div className="bg-white shadow-xl rounded-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Login Sessions</h3>
+        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Login Sessions</h3>
           {error ? (
-            <p className="text-red-600 text-center">{error}</p>
+            <p className="text-red-600 dark:text-red-400 text-center">{error}</p>
           ) : sessions.length === 0 ? (
-            <p className="text-gray-600 text-center">No active sessions found.</p>
+            <p className="text-gray-600 dark:text-gray-300 text-center">No active sessions found.</p>
           ) : (
             <div className="space-y-2">
               {sessions.map((session) => (
                 <div
                   key={session.$id}
-                  className="flex items-center justify-between p-3 border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex flex-wrap items-center gap-3 text-sm">
-                    <span className="text-gray-900 truncate">
+                    <span className="text-gray-900 dark:text-gray-100 truncate">
                       {formatDate(session.$createdAt)}
                     </span>
-                    <span className="text-gray-600 truncate">
+                    <span className="text-gray-600 dark:text-gray-300 truncate">
                       {session.deviceName || 'Unknown Device'}
                     </span>
-                    <span className="text-gray-600 truncate">
+                    <span className="text-gray-600 dark:text-gray-300 truncate">
                       {session.osName || 'Unknown OS'} {session.osVersion || ''}
                     </span>
-                    <span className="text-gray-600 truncate">
+                    <span className="text-gray-600 dark:text-gray-300 truncate">
                       {session.ip || 'N/A'}
                     </span>
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
                         session.current
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {session.current ? 'Current' : 'Inactive'}
@@ -589,7 +587,7 @@ const Profile = () => {
                   {!session.current && (
                     <button
                       onClick={() => handleSessionLogout(session.$id)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-blue-600 hover:text-blue-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium"
                     >
                       Log Out
                     </button>
@@ -601,19 +599,19 @@ const Profile = () => {
         </div>
 
         {/* Account Deletion */}
-        <div className="bg-white shadow-xl rounded-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Account Deletion</h3>
-          <p className="text-gray-600 mb-4">
+        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Account Deletion</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
             Deleting your account will permanently remove all associated data, including your profile, sessions, audio generations, and cloned voices. This action cannot be undone.
           </p>
           <button
-            onClick={handleDeleteAccountClick} // This now opens the modal
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            onClick={handleDeleteAccountClick}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 transition-colors"
             disabled={isDeleting}
           >
             {isDeleting ? (
               <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-white dark:border-gray-200 border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-2">Deleting...</span>
               </div>
             ) : (
@@ -627,7 +625,7 @@ const Profile = () => {
       <ConfirmationModal
         isOpen={isDeleteAccountModalOpen}
         onClose={() => setIsDeleteAccountModalOpen(false)}
-        onConfirm={executeDeleteAccount} // Call the actual deletion logic on confirm
+        onConfirm={executeDeleteAccount}
         title="Confirm Account Deletion"
         message="Are you absolutely sure you want to delete your account? This action is irreversible and will permanently remove all your data."
         confirmButtonText="Delete"

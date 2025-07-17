@@ -71,27 +71,27 @@ const MyModelsTabContent = ({ onSelectModel }) => {
 
   if (error) {
     return (
-      <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">
+      <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-900 dark:text-red-300">
         {error}
       </div>
     );
   }
 
   return (
-    <div className="divide-y divide-gray-200">
+    <div className="divide-y divide-gray-200 dark:divide-gray-700">
       {models.length === 0 ? (
         <div className="py-8 text-center">
-          <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No models found</h3>
-          <p className="mt-1 text-sm text-gray-500">Create one in the Voice Cloning Studio.</p>
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No models found</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Create one in the Voice Cloning Studio.</p>
         </div>
       ) : (
-        models.map((modelItem) => (
+        models.map(( modelItem) => (
           <div
             key={modelItem.fishAudioModelId}
-            className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 transition-all duration-200 cursor-pointer"
+            className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-all duration-200 cursor-pointer"
             onClick={() => onSelectModel(modelItem)}
           >
             <div className="flex items-center space-x-4">
@@ -99,13 +99,13 @@ const MyModelsTabContent = ({ onSelectModel }) => {
                 <img
                   src={modelItem.coverImage || '/placeholder.png'}
                   alt={modelItem.title}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100 dark:border-indigo-700"
                 />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white"></div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white dark:border-gray-900"></div>
               </div>
               <div>
-                <h3 className="font-medium text-gray-800">{modelItem.title}</h3>
-                <p className="text-xs text-gray-500">ID: {modelItem.fishAudioModelId}</p>
+                <h3 className="font-medium text-gray-800 dark:text-gray-200">{modelItem.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">ID: {modelItem.fishAudioModelId}</p>
               </div>
             </div>
             <button
@@ -113,7 +113,7 @@ const MyModelsTabContent = ({ onSelectModel }) => {
                 e.stopPropagation();
                 onSelectModel(modelItem);
               }}
-              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all duration-200"
+              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all duration-200 dark:bg-indigo-700 dark:hover:bg-indigo-800 dark:shadow-md"
             >
               Use Model
             </button>
@@ -162,7 +162,7 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
 
   if (error) {
     return (
-      <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50">
+      <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-red-900 dark:text-red-300">
         {error}
       </div>
     );
@@ -173,7 +173,7 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
       <div className="px-6 py-4">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -182,18 +182,18 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
             placeholder="Search public models by name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-indigo-400"
           />
         </div>
       </div>
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
         {filteredModels.length === 0 ? (
           <div className="py-8 text-center">
-            <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No models found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No models found</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {searchQuery ? 'No models match your search.' : 'No public models available.'}
             </p>
           </div>
@@ -201,7 +201,7 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
           filteredModels.map((modelItem) => (
             <div
               key={modelItem.fish_model_id}
-              className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 transition-all duration-200 cursor-pointer"
+              className="flex items-center justify-between px-6 py-4 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-all duration-200 cursor-pointer"
               onClick={() => onSelectModel(modelItem)}
             >
               <div className="flex items-center space-x-4">
@@ -209,13 +209,13 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
                   <img
                     src={modelItem.image_url || '/placeholder.png'}
                     alt={modelItem.title}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100 dark:border-indigo-700"
                   />
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800">{modelItem.title}</h3>
-                  <p className="text-xs text-gray-500">ID: {modelItem.fish_model_id}</p>
+                  <h3 className="font-medium text-gray-800 dark:text-gray-200">{modelItem.title}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">ID: {modelItem.fish_model_id}</p>
                 </div>
               </div>
               <button
@@ -223,7 +223,7 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
                   e.stopPropagation();
                   onSelectModel(modelItem);
                 }}
-                className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all duration-200"
+                className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm transition-all duration-200 dark:bg-indigo-700 dark:hover:bg-indigo-800 dark:shadow-md"
               >
                 Use Model
               </button>
@@ -247,7 +247,7 @@ export default function TextToSpeech() {
   const { user } = useAuth();
   const router = useRouter();
 
-    // Determine MAX_CHARS based on user's current_active_plan
+  // Determine MAX_CHARS based on user's current_active_plan
   const getMaxChars = () => {
     if (!user || !user.current_active_plan) {
       return 500; // Default to free plan if no user or plan
@@ -500,10 +500,7 @@ export default function TextToSpeech() {
         toast.error(
           <>
             Your current plan does not allow saving audio.{' '}
-            <span
-              className="underline cursor-pointer"
-              onClick={() => router.push('/pricing')}
-            >
+            <span className="underline cursor-pointer" onClick={() => router.push('/pricing')}>
               Upgrade your plan
             </span>
             .
@@ -523,7 +520,6 @@ export default function TextToSpeech() {
     if (savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id)) {
       return;
     }
-
     setSavingAudioIds((prev) => new Set([...prev, audio.id]));
 
     try {
@@ -537,9 +533,7 @@ export default function TextToSpeech() {
         throw new Error('Audio blob is empty');
       }
 
-      const audioFile = new File([audio.blob], `speech-${audio.id}.mp3`, {
-        type: 'audio/mpeg',
-      });
+      const audioFile = new File([audio.blob], `speech-${audio.id}.mp3`, { type: 'audio/mpeg' });
 
       const file = await storage.createFile(
         process.env.NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET_ID,
@@ -583,27 +577,42 @@ export default function TextToSpeech() {
     }
   };
 
+  const handleDownload = (audio) => {
+    if (!audio.blob) {
+      toast.error('Audio file is not available for download.');
+      return;
+    }
+    const url = URL.createObjectURL(audio.blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `speech-${audio.id}.mp3`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleModelSelect = (selectedModel) => {
     setModel(selectedModel);
     setIsModelDialogOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8 dark:from-gray-900 dark:to-black">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight">
+        <h1 className="text-4xl font-bold text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight dark:from-indigo-400 dark:to-purple-400">
           Text to Speech Studio
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Section */}
           <div className="flex-1">
-            <div className="bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl border border-gray-100">
+            <div className="bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:shadow-2xl dark:hover:shadow-indigo-500/20">
               {/* Text Input Section */}
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
-                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2 dark:text-gray-200">
+                  <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Enter Text
@@ -611,20 +620,20 @@ export default function TextToSpeech() {
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
-                  className="w-full h-48 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-200 bg-gray-50"
+                  className="w-full h-48 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-indigo-400"
                   placeholder="Type or paste your text here..."
                 />
                 <div className="flex justify-between items-center mt-3">
                   <button
                     onClick={() => setText('')}
                     disabled={!text}
-                    className="px-4 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors duration-200"
+                    className="px-4 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors duration-200 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:disabled:opacity-40"
                   >
                     Clear
                   </button>
                   <span
                     className={`text-sm font-medium ${
-                      text.length >= MAX_CHARS ? 'text-red-600' : 'text-gray-500'
+                      text.length >= MAX_CHARS ? 'text-red-600' : 'text-gray-500 dark:text-gray-400'
                     }`}
                   >
                     {text.length}/{MAX_CHARS}
@@ -634,215 +643,177 @@ export default function TextToSpeech() {
 
               {/* Model Selection */}
               <div className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
-                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center gap-2 dark:text-gray-200">
+                  <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                   </svg>
-                  Select Voice Model
+                  Choose Voice Model
                 </h2>
                 {model ? (
-                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-gray-50 h-16 transition-all hover:bg-indigo-50">
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <img
-                          src={model.coverImage || model.image_url || '/placeholder.png'}
-                          alt={model.title}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-indigo-200"
-                        />
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-indigo-500 rounded-full border-2 border-white"></div>
-                      </div>
+                  <div
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md dark:bg-gray-700 dark:border-gray-600 dark:shadow-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={model.coverImage || model.image_url || '/placeholder.png'}
+                        alt={model.title}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-indigo-100 dark:border-indigo-700"
+                      />
                       <div>
-                        <span className="font-medium text-gray-800">{model.title}</span>
-                        <p className="text-xs text-gray-500">ID: {model.fishAudioModelId || model.fish_model_id}</p>
+                        <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">{model.title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">ID: {model.fishAudioModelId || model.fish_model_id}</p>
                       </div>
                     </div>
                     <button
-                      onClick={() => setModel(null)}
-                      className="p-1 text-gray-400 hover:text-red-500 rounded-full transition-colors duration-200"
+                      onClick={() => setIsModelDialogOpen(true)}
+                      className="px-4 py-2 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 text-sm font-medium transition-colors duration-200 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      Change
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setIsModelDialogOpen(true)}
-                    className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-200 h-16 group"
-                  >
-                    <span className="text-gray-600">Select a voice model</span>
-                    <span className="text-indigo-600 group-hover:translate-x-1 transition-transform duration-200">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </span>
-                  </button>
+                  <div className="text-center p-8 bg-gray-50 rounded-xl border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                    <p className="text-gray-500 mb-4 dark:text-gray-400">No voice model selected.</p>
+                    <button
+                      onClick={() => setIsModelDialogOpen(true)}
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-200 dark:bg-indigo-700 dark:hover:bg-indigo-800 dark:shadow-lg"
+                    >
+                      Select a Voice Model
+                    </button>
+                  </div>
                 )}
               </div>
 
-              {/* Generate Button */}
+              {/* Convert Button */}
               <button
                 onClick={handleConvert}
-                disabled={loading || !text || !model}
-                className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-all duration-200 shadow-md hover:shadow-lg"
+                disabled={loading || !text.trim() || !model}
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl text-lg font-semibold shadow-lg hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-indigo-700 dark:hover:bg-indigo-800 dark:shadow-xl dark:disabled:opacity-40"
               >
-                {loading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m4.242-12.728a9 9 0 012.728 2.728" />
-                    </svg>
-                    <span>Generate Speech</span>
-                  </>
-                )}
+                {loading ? 'Generating Speech...' : 'Generate Speech'}
               </button>
             </div>
           </div>
 
           {/* Right Section - Audio History */}
           <div className="flex-1">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">Audio History</h2>
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl border border-gray-100 min-h-[500px] flex flex-col dark:bg-gray-800 dark:border-gray-700 dark:shadow-2xl dark:hover:shadow-indigo-500/20">
+              <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center gap-2 dark:text-gray-200">
+                <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Audio History
+              </h2>
+
               {audioList.length === 0 ? (
-                <div className="bg-white/50 backdrop-blur-sm p-8 rounded-xl border border-gray-200 text-center">
-                  <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
+                  <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <h3 className="mt-4 text-lg font-medium text-gray-700">No audio generated yet</h3>
-                  <p className="mt-1 text-gray-500">Convert some text to speech to see results here</p>
+                  <p className="text-lg font-medium">No audio generated yet.</p>
+                  <p className="text-sm">Your generated speech will appear here.</p>
                 </div>
               ) : (
-                audioList.map((audio) => (
-                  <div
-                    key={audio.id}
-                    className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all duration-300"
-                  >
-                    <div className="flex justify-between items-center mb-3">
-                      <p className="text-sm text-gray-500 flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {audio.timestamp}
-                      </p>
-                      <div className="flex gap-2">
+                <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                  {audioList.map((audio) => (
+                    <div
+                      key={audio.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:shadow-md"
+                    >
+                      <div className="flex-1 mr-4">
+                        <audio controls src={audio.url} className="w-full" />
+                        <span className="text-xs text-gray-500 mt-2 block dark:text-gray-400">
+                          {audio.timestamp}
+                        </span>
+                      </div>
+                      <div className="flex space-x-2">
                         <button
                           onClick={() => handleSave(audio)}
-                          disabled={savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id) || !audio.blob}
-                          className={`p-1.5 rounded-lg ${savedAudioIds.has(audio.id) 
-                            ? 'bg-green-100 text-green-600' 
-                            : savingAudioIds.has(audio.id)
-                              ? 'bg-blue-100 text-blue-600'
-                              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                          disabled={savedAudioIds.has(audio.id) || savingAudioIds.has(audio.id)}
+                          className={`p-2 rounded-full ${
+                            savedAudioIds.has(audio.id) ? 'bg-green-100 text-green-700 cursor-not-allowed dark:bg-green-800 dark:text-green-200' : 
+                            'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800'
                           } transition-colors duration-200`}
+                          title={savedAudioIds.has(audio.id) ? "Saved" : "Save Audio"}
                         >
                           {savingAudioIds.has(audio.id) ? (
-                            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            <svg className="animate-spin h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                           ) : savedAudioIds.has(audio.id) ? (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
                           ) : (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                           )}
                         </button>
+                        <button
+                          onClick={() => handleDownload(audio)}
+                          className="p-2 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800 transition-colors duration-200"
+                          title="Download Audio"
+                        >
+                          <FiDownload className="w-5 h-5" />
+                        </button>
                       </div>
                     </div>
-                    
-                    <audio controls className="w-full mb-4 rounded-lg">
-                      <source src={audio.url} type="audio/mpeg" />
-                    </audio>
-                    
-                    <div className="flex gap-3">
-                      <a
-                        href={audio.url}
-                        download={`speech-${audio.id}.mp3`}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
-                      >
-                        <FiDownload className="w-4 h-4" />
-                        Download
-                      </a>
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Model Selection Modal */}
-        {isModelDialogOpen && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[80vh] min-h-[400px] shadow-2xl flex flex-col overflow-hidden border border-gray-200">
-              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-800">Select a Voice Model</h3>
+      {/* Model Selection Dialog */}
+      {isModelDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 dark:bg-opacity-75">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl h-[80vh] flex flex-col dark:bg-gray-800">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Select a Voice Model</h3>
+              <button
+                onClick={() => setIsModelDialogOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <div className="flex border-b border-gray-200 dark:border-gray-700">
                 <button
-                  onClick={() => setIsModelDialogOpen(false)}
-                  className="p-1 text-gray-400 hover:text-gray-600 rounded-full transition-colors duration-200"
+                  onClick={() => setTabValue(0)}
+                  className={`flex-1 px-4 py-3 font-medium text-center ${tabValue === 0 
+                    ? 'text-indigo-600 border-b-2 border-indigo-600 dark:text-indigo-400 dark:border-indigo-400' 
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  } transition-colors duration-200`}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  My Models
+                </button>
+                <button
+                  onClick={() => setTabValue(1)}
+                  className={`flex-1 px-4 py-3 font-medium text-center ${tabValue === 1 
+                    ? 'text-indigo-600 border-b-2 border-indigo-600 dark:text-indigo-400 dark:border-indigo-400' 
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  } transition-colors duration-200`}
+                >
+                  Public Models
                 </button>
               </div>
 
-              <div className="flex-1 overflow-hidden flex flex-col">
-                <div className="flex border-b border-gray-200">
-                  <button
-                    onClick={() => setTabValue(0)}
-                    className={`flex-1 px-4 py-3 font-medium text-center ${tabValue === 0 
-                      ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                    } transition-colors duration-200`}
-                  >
-                    My Models
-                  </button>
-                  <button
-                    onClick={() => setTabValue(1)}
-                    className={`flex-1 px-4 py-3 font-medium text-center ${tabValue === 1 
-                      ? 'text-indigo-600 border-b-2 border-indigo-600' 
-                      : 'text-gray-500 hover:text-gray-700'
-                    } transition-colors duration-200`}
-                  >
-                    Public Models
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto">
-                  {tabValue === 0 && <MyModelsTabContent onSelectModel={handleModelSelect} />}
-                  {tabValue === 1 && <BrowseModelsTabContent onSelectModel={handleModelSelect} />}
-                </div>
+              <div className="flex-1 overflow-y-auto">
+                {tabValue === 0 && <MyModelsTabContent onSelectModel={handleModelSelect} />}
+                {tabValue === 1 && <BrowseModelsTabContent onSelectModel={handleModelSelect} />}
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

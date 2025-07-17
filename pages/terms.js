@@ -1,4 +1,3 @@
-// pages/terms-of-service.js
 import Head from 'next/head';
 
 export default function TermsOfService() {
@@ -9,12 +8,12 @@ export default function TermsOfService() {
         <meta name="description" content="Terms and conditions for using LowCost TTS." />
       </Head>
 
-      <main className="bg-gray-50 min-h-screen px-4 sm:px-6 lg:px-8 py-12 text-gray-800">
+      <main className="bg-gray-50 dark:bg-gray-900 min-h-screen px-4 sm:px-6 lg:px-8 py-12 text-gray-800 dark:text-gray-200">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mb-4">
             Terms of Service
           </h1>
-          <div className="bg-green-100 text-sm text-gray-700 px-3 py-1 rounded-md w-max mx-auto mb-10">
+          <div className="bg-green-100 dark:bg-green-900 text-sm text-gray-700 dark:text-gray-200 px-3 py-1 rounded-md w-max mx-auto mb-10">
             Last updated: June 30, 2025
           </div>
 
@@ -22,22 +21,22 @@ export default function TermsOfService() {
             {sections.map((section, idx) => (
               <div
                 key={idx}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
               >
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {section.title}
                 </h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
                   {section.body}
                 </p>
               </div>
             ))}
 
-            <div className="bg-white p-6 rounded-xl shadow-md text-gray-700 text-base leading-relaxed text-center">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-gray-700 dark:text-gray-300 text-base leading-relaxed text-center">
               For any questions or concerns, please contact us at{' '}
               <a
                 href="mailto:support@lowcosttts.com"
-                className="text-blue-600 hover:underline"
+                className="text-blue-600 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
               >
                 support@lowcosttts.com
               </a>

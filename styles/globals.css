@@ -1,36 +1,42 @@
+/* styles/globals.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
   --font-inter: 'Inter', sans-serif;
 }
 
-
-:root {
+/* Remove these :root blocks if they solely control background/foreground for dark mode */
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
-}
+} */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@media (prefers-color-scheme: dark) {
+/* Remove this media query */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 html,
 body {
   height: 100%; /* Ensures body takes full height */
   margin: 0; /* To avoid any unwanted margins */
   font-family: 'Inter', sans-serif; /* This ensures that Inter is used globally */
+  /* Set base text color, the background will be set by the Layout component */
+  @apply text-gray-900 dark:text-gray-100;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for text */
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  /* Remove direct color/background assignments that use CSS variables */
+  /* color: var(--foreground); */
+  /* background: var(--background); */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -46,8 +52,9 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Remove this media query */
+/* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
-}
+} */

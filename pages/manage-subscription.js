@@ -1,7 +1,6 @@
-// manage-subscription.js
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import ConfirmationModal from '../components/ConfirmationModal'; // <--- Import the new modal
+import ConfirmationModal from '../components/ConfirmationModal';
 
 export default function ManageSubscription() {
   const { user, loading, refreshUser } = useAuth();
@@ -11,8 +10,6 @@ export default function ManageSubscription() {
   const [loadingSub, setLoadingSub] = useState(true);
   const [isGeneratingPortal, setIsGeneratingPortal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
-
-  // New state for cancellation modal
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   // Load subscription data
@@ -41,7 +38,7 @@ export default function ManageSubscription() {
     }
   }, [user]);
 
-  // Handle Manage Subscription button click (no change to this part)
+  // Handle Manage Subscription button click
   const handleManageSubscription = async () => {
     if (!user.creem_customer_id) {
       setApiError('No customer ID available');
@@ -80,7 +77,7 @@ export default function ManageSubscription() {
     }
   };
 
-  // New function to handle the actual cancellation API call
+  // Handle the actual cancellation API call
   const executeCancelSubscription = async () => {
     setIsCanceling(true);
     setApiError(null);
@@ -125,38 +122,37 @@ export default function ManageSubscription() {
       setApiError(`Failed to cancel subscription: ${err.message}`);
     } finally {
       setIsCanceling(false);
-      setIsCancelModalOpen(false); // Close the modal regardless of success/failure
+      setIsCancelModalOpen(false);
     }
   };
 
-  // Modified handleCancelSubscription to open the modal
+  // Handle Cancel Subscription button click
   const handleCancelSubscription = () => {
     if (!user.creem_subscription_id) {
       setApiError('No subscription ID available');
       return;
     }
-    // Open the confirmation modal instead of directly canceling
     setIsCancelModalOpen(true);
   };
 
   if (loading || loadingSub)
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
-        <p className="ml-4 text-gray-600">Loading subscription...</p>
+      <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 dark:border-indigo-400"></div>
+        <p className="ml-4 text-gray-600 dark:text-gray-300">Loading subscription...</p>
       </div>
     );
 
   if (!user)
     return (
-      <div className="text-center text-red-600 text-lg font-medium mt-10">
+      <div className="text-center text-red-600 dark:text-red-400 text-lg font-medium mt-10">
         Please log in to view your subscriptions.
       </div>
     );
 
   if (apiError)
     return (
-      <div className="text-center text-red-600 text-lg font-medium mt-10">
+      <div className="text-center text-red-600 dark:text-red-400 text-lg font-medium mt-10">
         <p>{apiError}</p>
         {portalUrl && (
           <p className="mt-4">
@@ -164,7 +160,7 @@ export default function ManageSubscription() {
               href={portalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline hover:text-blue-800"
+              className="text-blue-600 underline hover:text-blue-800 dark:text-indigo-400 dark:hover:text-indigo-300"
             >
               Click here to visit the customer portal manually
             </a>
@@ -173,97 +169,97 @@ export default function ManageSubscription() {
       </div>
     );
 
-	if (!user.creem_customer_id)
-	  return (
-		<div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
-		  <div className="max-w-md mx-auto text-center">
-			<div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
-			  <div className="flex justify-center mb-6">
-				<svg
-				  xmlns="http://www.w3.org/2000/svg"
-				  className="h-16 w-16 text-gray-400"
-				  fill="none"
-				  viewBox="0 0 24 24"
-				  stroke="currentColor"
-				>
-				  <path
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					strokeWidth={1.5}
-					d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-				  />
-				</svg>
-			  </div>
-			  <h2 className="text-2xl font-bold text-gray-800 mb-3">
-				No Active Subscription
-			  </h2>
-				<p className="text-gray-600 mb-6">
-				  You don&apos;t have any active subscriptions. Explore our plans to unlock premium features.
-				</p>
-			  <button
-				onClick={() => window.location.href = '/pricing'}
-				className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium bg-gradient-to-r from-indigo-600 to-purple-600"
-			  >
-				View Pricing Plans
-			  </button>
-			</div>
-		  </div>
-		</div>
-	  );
+  if (!user.creem_customer_id)
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 border border-gray-200 dark:border-gray-700">
+            <div className="flex justify-center mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-16 w-16 text-gray-400 dark:text-gray-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+              No Active Subscription
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              You don't have any active subscriptions. Explore our plans to unlock premium features.
+            </p>
+            <button
+              onClick={() => window.location.href = '/pricing'}
+              className="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 transition font-medium"
+            >
+              View Pricing Plans
+            </button>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8 text-center">
           Your Subscription
         </h1>
 
         {subscription ? (
-          <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-gray-800">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
                 {subscription.plan_name || 'Not available'}
               </h2>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                   subscription.status === 'active'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                 }`}
               >
                 {subscription.status || 'Unknown'}
               </span>
             </div>
             <div className="grid grid-cols-1 gap-4">
-              <div className="bg-gray-50 p-4 rounded-md">
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-gray-600 text-sm">Created At</p>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">Created At</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-medium">
                       {subscription.created_at
                         ? new Date(subscription.created_at * 1000).toLocaleDateString()
                         : 'Not available'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 text-sm">Period Start</p>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">Period Start</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-medium">
                       {subscription.current_period_start_date
                         ? new Date(subscription.current_period_start_date).toLocaleDateString()
                         : 'Not available'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 text-sm">Period End</p>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">Period End</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-medium">
                       {subscription.current_period_end_date
                         ? new Date(subscription.current_period_end_date).toLocaleDateString()
                         : 'Not available'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 text-sm">Billing Cycle</p>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">Billing Cycle</p>
+                    <p className="text-gray-900 dark:text-gray-100 font-medium">
                       {subscription.billing_cycle || 'Not available'}
                     </p>
                   </div>
@@ -274,7 +270,7 @@ export default function ManageSubscription() {
               <button
                 onClick={handleManageSubscription}
                 disabled={isGeneratingPortal || isCanceling}
-                className={`w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center ${
+                className={`w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-indigo-600 dark:hover:bg-indigo-500 transition flex items-center justify-center ${
                   (isGeneratingPortal || isCanceling) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -307,9 +303,9 @@ export default function ManageSubscription() {
                 )}
               </button>
               <button
-                onClick={handleCancelSubscription} // This now opens the modal
+                onClick={handleCancelSubscription}
                 disabled={isGeneratingPortal || isCanceling}
-                className={`w-full px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center justify-center ${
+                className={`w-full px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400 transition flex items-center justify-center ${
                   (isGeneratingPortal || isCanceling) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -344,17 +340,16 @@ export default function ManageSubscription() {
             </div>
           </div>
         ) : (
-          <p className="text-center text-gray-600 text-lg font-medium">
+          <p className="text-center text-gray-600 dark:text-gray-300 text-lg font-medium">
             No active subscription found.
           </p>
         )}
       </div>
 
-      {/* Confirmation Modal for Cancellation */}
       <ConfirmationModal
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
-        onConfirm={executeCancelSubscription} // Call the actual cancellation logic on confirm
+        onConfirm={executeCancelSubscription}
         title="Confirm Cancellation"
         message="Are you sure you want to cancel your subscription? This action cannot be undone."
         confirmButtonText="Yes, Cancel"

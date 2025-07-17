@@ -49,31 +49,26 @@ const sections = [
 
 export default function RefundPolicy() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        {/* Heading */}
-        <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-2">
+        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 text-center mb-2">
           Refund Policy
         </h1>
-
-        {/* Last Updated Tag */}
         <div className="flex justify-center mb-8">
-          <span className="inline-block bg-green-100 text-sm text-gray-700 px-3 py-1 rounded-md">
+          <span className="inline-block bg-green-100 dark:bg-green-900 text-sm text-gray-700 dark:text-gray-200 px-3 py-1 rounded-md">
             Last updated: June 30, 2025
           </span>
         </div>
-
-        {/* Policy Sections */}
         <div className="space-y-6">
           {sections.map((section, idx) => (
             <div
               key={idx}
-              className="bg-white p-6 rounded-2xl shadow-md transition hover:shadow-lg"
+              className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md transition hover:shadow-lg"
             >
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-3">
                 {section.title}
               </h2>
-              <div className="text-gray-700 text-base space-y-2">
+              <div className="text-gray-700 dark:text-gray-300 text-base space-y-2">
                 {Array.isArray(section.content) ? (
                   <ul className="list-disc list-inside">
                     {section.content.map((item, i) => (

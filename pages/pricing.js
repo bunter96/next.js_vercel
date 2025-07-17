@@ -1,10 +1,10 @@
 // pricing.js
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
-import { account } from '../lib/appwriteConfig';
+import { account, databases } from '../lib/appwriteConfig';
 import { toast } from 'react-hot-toast';
 import SubscriptionChangeModal from '../components/SubscriptionChangeModal'; // Make sure this path is correct
 
@@ -294,14 +294,14 @@ export default function PricingPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.8 }}
-      className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6 sm:p-12"
+      className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-6 sm:p-12 dark:from-gray-900 dark:via-gray-950 dark:to-gray-800"
     >
       <div className="max-w-7xl mx-auto text-center">
         <motion.h1
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: shouldReduceMotion ? 0 : 0.6, type: "spring", stiffness: 100 }}
-          className="text-4xl sm:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600"
+          className="text-4xl sm:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400"
         >
           Find Your Perfect Plan
         </motion.h1>
@@ -310,7 +310,7 @@ export default function PricingPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: shouldReduceMotion ? 0 : 0.3 }}
-          className="text-gray-700 mb-10 text-lg sm:text-xl max-w-2xl mx-auto"
+          className="text-gray-700 mb-10 text-lg sm:text-xl max-w-2xl mx-auto dark:text-gray-300"
         >
           From startups to enterprises, we have a plan tailored to your needs with flexible billing options.
         </motion.p>
@@ -319,19 +319,19 @@ export default function PricingPage() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
-          className="flex justify-center mb-12 items-center gap-4 max-w-sm mx-auto bg-white p-2 rounded-full shadow-lg"
+          className="flex justify-center mb-12 items-center gap-4 max-w-sm mx-auto bg-white p-2 rounded-full shadow-lg dark:bg-gray-800 dark:shadow-xl"
         >
           <button
             onClick={() => setYearly(false)}
             aria-label="Switch to monthly billing"
-            className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${!yearly ? 'bg-indigo-600 text-white shadow-md' : 'bg-transparent text-gray-700 hover:bg-gray-100'}`}
+            className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${!yearly ? 'bg-indigo-600 text-white shadow-md dark:bg-indigo-700' : 'bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}`}
           >
             Monthly
           </button>
           <button
             onClick={() => setYearly(true)}
             aria-label="Switch to yearly billing"
-            className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${yearly ? 'bg-indigo-600 text-white shadow-md' : 'bg-transparent text-gray-700 hover:bg-gray-100'}`}
+            className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${yearly ? 'bg-indigo-600 text-white shadow-md dark:bg-indigo-700' : 'bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'}`}
           >
             Yearly
           </button>
@@ -339,7 +339,7 @@ export default function PricingPage() {
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-sm text-green-600 font-medium"
+              className="text-sm text-green-600 font-medium dark:text-green-400"
             >
               Save 20%
             </motion.span>
@@ -362,38 +362,41 @@ export default function PricingPage() {
                 key={idx}
                 variants={itemVariants}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: idx * 0.25 }}
-                className={`rounded-3xl shadow-xl p-8 flex flex-col items-center text-center bg-white transition-all duration-300 hover:shadow-2xl ${
-                  plan.featured
-                    ? "border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 transform scale-105 relative overflow-hidden"
-                    : ""
-                } ${isSubscribed ? "ring-2 ring-green-500 bg-green-50" : ""}`}
+                className={`rounded-3xl shadow-xl p-8 flex flex-col items-center text-center bg-white transition-all duration-300 hover:shadow-2xl dark:bg-gray-800 dark:shadow-2xl dark:hover:shadow-3xl
+                  ${
+                    plan.featured
+                      ? "border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 relative overflow-hidden dark:from-indigo-900 dark:to-purple-900"
+                      : "border border-gray-100 dark:border-gray-700"
+                  }
+                  ${isSubscribed ? "ring-2 ring-green-500 bg-green-50 dark:ring-green-400 dark:bg-green-950" : ""}
+                  ${plan.featured ? "transform scale-105" : ""}`}
                 aria-describedby={`plan-${plan.title}-description`}
               >
                 {plan.featured && (
-                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500" />
+                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600" />
                 )}
                 <div className="relative w-full text-center">
                   <div className="flex items-center justify-center gap-3">
                     {isSubscribed && (
-                      <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+                      <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full dark:bg-green-700 dark:text-green-100">
                         Active
                       </span>
                     )}
-                    <h2 className="text-2xl font-bold mb-3 text-gray-900">{plan.title}</h2>
+                    <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">{plan.title}</h2>
                     {plan.featured && (
-                      <span className="px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 rounded-full">
+                      <span className="px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 rounded-full dark:bg-indigo-700 dark:text-indigo-100">
                         Most Popular
                       </span>
                     )}
                   </div>
                 </div>
-                <p className="text-4xl font-extrabold mb-2 text-gray-900">
+                <p className="text-4xl font-extrabold mb-2 text-gray-900 dark:text-white">
                   {yearly ? plan.yearly : plan.monthly}
-                  <span className="text-xl font-normal text-gray-500">
+                  <span className="text-xl font-normal text-gray-500 dark:text-gray-400">
                     {yearly ? plan.frequencyYearly : plan.frequencyMonthly}
                   </span>
                 </p>
-                <p id={`plan-${plan.title}-description`} className="text-gray-600 mb-6 text-base">
+                <p id={`plan-${plan.title}-description`} className="text-gray-600 mb-6 text-base dark:text-gray-300">
                   {plan.description}
                 </p>
                 <ul className="text-left space-y-3 mb-8 w-full">
@@ -403,9 +406,9 @@ export default function PricingPage() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: shouldReduceMotion ? 0 : 0.3 + i * 0.1 }}
-                      className="flex items-center gap-3 text-gray-700 text-base"
+                      className="flex items-center gap-3 text-gray-700 text-base dark:text-gray-300"
                     >
-                      <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+                      <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 dark:text-green-400" />
                       <span>{feature}</span>
                     </motion.li>
                   ))}
@@ -416,18 +419,19 @@ export default function PricingPage() {
                   whileTap={isSubscribed ? {} : buttonVariants.tap}
                   onClick={() => handleSubscribe(plan)}
                   disabled={isSubscribed || loading === plan.title}
-                  className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center focus:ring-4 focus:ring-indigo-300 ${
-                    isSubscribed
-                      ? 'bg-green-600 text-white cursor-not-allowed'
-                      : plan.featured
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                      : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                  }`}
+                  className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center focus:ring-4 focus:ring-indigo-300 dark:focus:ring-indigo-600
+                    ${
+                      isSubscribed
+                        ? 'bg-green-600 text-white cursor-not-allowed dark:bg-green-700'
+                        : plan.featured
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800'
+                        : 'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600'
+                    }`}
                   aria-label={isSubscribed ? `${plan.title} plan is active` : `Subscribe to ${plan.title} plan`}
                 >
                   {loading === plan.title ? (
                     <>
-                      <svg className="animate-spin h-6 w-6 mr-3 inline-block" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-6 w-6 mr-3 inline-block text-white dark:text-gray-200" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                       </svg>
@@ -450,19 +454,19 @@ export default function PricingPage() {
           transition={{ delay: shouldReduceMotion ? 0 : 0.6 }}
           className="mt-20"
         >
-          <h2 className="text-3xl font-bold mb-8 text-gray-900">Compare Features</h2>
+          <h2 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">Compare Features</h2>
           <details className="md:hidden mb-6">
-            <summary className="text-xl font-semibold cursor-pointer flex items-center justify-center gap-2">
+            <summary className="text-xl font-semibold cursor-pointer flex items-center justify-center gap-2 text-gray-900 dark:text-gray-100">
               Show Feature Comparison
-              <ChevronDown className="w-5 h-5" />
+              <ChevronDown className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             </summary>
-            <div className="overflow-x-auto rounded-xl border border-gray-200 mt-4 shadow-lg">
+            <div className="overflow-x-auto rounded-xl border border-gray-200 mt-4 shadow-lg dark:border-gray-700 dark:shadow-xl">
               <table className="w-full table-auto border-collapse">
-                <thead className="bg-indigo-50 sticky top-0 z-10">
+                <thead className="bg-indigo-50 sticky top-0 z-10 dark:bg-gray-700">
                   <tr>
-                    <th className="p-4 text-left font-semibold sticky left-0 bg-indigo-50 z-20 text-gray-900">Feature</th>
+                    <th className="p-4 text-left font-semibold sticky left-0 bg-indigo-50 z-20 text-gray-900 dark:bg-gray-700 dark:text-gray-200">Feature</th>
                     {memoizedPlans.map((plan, i) => (
-                      <th key={i} className="p-4 text-center font-semibold text-gray-900">
+                      <th key={i} className="p-4 text-center font-semibold text-gray-900 dark:text-gray-200">
                         {plan.title}
                       </th>
                     ))}
@@ -476,17 +480,17 @@ export default function PricingPage() {
                       initial="hidden"
                       animate="visible"
                       transition={{ delay: shouldReduceMotion ? 0 : i * 0.1 + 0.5 }}
-                      className="border-t even:bg-gray-50"
+                      className="border-t even:bg-gray-50 dark:border-gray-700 dark:even:bg-gray-800"
                     >
-                      <td className="p-4 text-left font-medium sticky left-0 bg-white z-10">
+                      <td className="p-4 text-left font-medium sticky left-0 bg-white z-10 dark:bg-gray-800 dark:text-gray-300">
                         {feature}
                       </td>
                       {memoizedPlans.map((plan, j) => (
                         <td key={j} className="p-4 text-center">
                           {plan.features.includes(feature) ? (
-                            <CheckCircle2 className="inline-block text-green-500 w-6 h-6" />
+                            <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
                           ) : (
-                            <span className="text-gray-400">—</span>
+                            <span className="text-gray-400 dark:text-gray-600">—</span>
                           )}
                         </td>
                       ))}
@@ -496,13 +500,13 @@ export default function PricingPage() {
               </table>
             </div>
           </details>
-          <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200 shadow-lg">
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200 shadow-lg dark:border-gray-700 dark:shadow-xl">
             <table className="w-full table-auto border-collapse">
-              <thead className="bg-indigo-50 sticky top-0 z-10">
+              <thead className="bg-indigo-50 sticky top-0 z-10 dark:bg-gray-700">
                 <tr>
-                  <th className="p-4 text-left font-semibold sticky left-0 bg-indigo-50 z-20 text-gray-900">Feature</th>
+                  <th className="p-4 text-left font-semibold sticky left-0 bg-indigo-50 z-20 text-gray-900 dark:bg-gray-700 dark:text-gray-200">Feature</th>
                   {memoizedPlans.map((plan, i) => (
-                    <th key={i} className="p-4 text-center font-semibold text-gray-900">
+                    <th key={i} className="p-4 text-center font-semibold text-gray-900 dark:text-gray-200">
                       {plan.title}
                     </th>
                   ))}
@@ -516,17 +520,17 @@ export default function PricingPage() {
                     initial="hidden"
                     animate="visible"
                     transition={{ delay: shouldReduceMotion ? 0 : i * 0.1 + 0.5 }}
-                    className="border-t even:bg-gray-50"
+                    className="border-t even:bg-gray-50 dark:border-gray-700 dark:even:bg-gray-800"
                   >
-                    <td className="p-4 font-medium text-left sticky left-0 bg-white z-10">
+                    <td className="p-4 font-medium text-left sticky left-0 bg-white z-10 dark:bg-gray-800 dark:text-gray-300">
                       {feature}
                     </td>
                     {memoizedPlans.map((plan, j) => (
                       <td key={j} className="p-4 text-center">
                         {plan.features.includes(feature) ? (
-                          <CheckCircle2 className="inline-block text-green-500 w-6 h-6" />
+                          <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-gray-400 dark:text-gray-600">—</span>
                         )}
                       </td>
                     ))}
@@ -538,7 +542,7 @@ export default function PricingPage() {
         </motion.section>
 
         <motion.section className="mt-20">
-          <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+          <h2 className="text-4xl sm:text-5xl font-extrabold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
             Frequently Asked Questions
           </h2>
           <div className="max-w-3xl mx-auto space-y-1">
@@ -546,15 +550,15 @@ export default function PricingPage() {
               const isOpen = openIndex === i;
 
               return (
-                <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden dark:bg-gray-800 dark:shadow-md">
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : i)}
-                    className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors"
+                    className="w-full p-6 text-left flex justify-between items-center focus:outline-none hover:bg-gray-50 transition-colors dark:hover:bg-gray-700"
                     aria-expanded={isOpen}
                   >
-                    <h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{faq.question}</h3>
                     <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
-                      <ChevronDown className="w-5 h-5 text-indigo-600" />
+                      <ChevronDown className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
                   </button>
 
@@ -562,7 +566,7 @@ export default function PricingPage() {
                     className={`overflow-hidden transition-all duration-100 ${isOpen ? 'max-h-[500px] opacity-100 pb-6 px-6' : 'max-h-0 opacity-0'}`}
                     style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
                   >
-                    <p className="text-gray-600">{faq.answer}</p>
+                    <p className="text-gray-600 dark:text-gray-300">{faq.answer}</p>
                   </div>
                 </div>
               );

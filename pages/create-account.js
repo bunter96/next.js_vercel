@@ -152,17 +152,7 @@ const CreateAccount = () => {
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
             <div className="flex space-x-4 border-b border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setActiveTab('google')}
-                className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm ${
-                  activeTab === 'google'
-                    ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
-                }`}
-                disabled
-              >
-                Continue with Google
-              </button>
+ 
               <button
                 onClick={() => setActiveTab('email')}
                 className={`flex-1 py-4 px-1 text-center border-b-2 font-medium text-sm ${

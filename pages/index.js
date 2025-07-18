@@ -20,7 +20,8 @@ export default function Home() {
   return (
     // Base background for the entire page, will be overridden by sections but good fallback
     <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300">
-      <section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white overflow-hidden
+                    dark:from-gray-800 dark:to-gray-900 dark:text-gray-100"> {/* Updated Hero Section Background for Dark Mode */}
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10 dark:opacity-5"></div>
         <motion.div
           className="max-w-7xl mx-auto px-4 py-32 text-center relative"
@@ -32,18 +33,21 @@ export default function Home() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="w-24 h-24 bg-indigo-500/20 rounded-full absolute -top-10 -left-10"
+            className="w-24 h-24 bg-indigo-500/20 rounded-full absolute -top-10 -left-10
+                      dark:bg-indigo-700/20" // Dark mode for animated circle
           ></motion.div>
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.4 }}
-            className="w-36 h-36 bg-purple-500/20 rounded-full absolute -bottom-10 -right-10"
+            className="w-36 h-36 bg-purple-500/20 rounded-full absolute -bottom-10 -right-10
+                      dark:bg-purple-700/20" // Dark mode for animated circle
           ></motion.div>
           
-          <h1 className="flex flex-col text-5xl md:text-6xl font-extrabold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100">
+          <h1 className="flex flex-col text-5xl md:text-6xl font-extrabold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-100
+            dark:from-gray-200 dark:to-gray-50"> {/* Updated Main Heading Text for Dark Mode */}
             <span>Studio Quality AI Voice Generation</span>
-            <span className="mt-2 md:mt-4 lg:mt-6 text-white">Platform</span>
+            <span className="mt-2 md:mt-4 lg:mt-6 text-white dark:text-gray-200">Platform</span> {/* Updated Platform Span for Dark Mode */}
           </h1>
 
           
@@ -51,7 +55,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-indigo-100"
+            className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-indigo-100 dark:text-gray-300" // Updated Sub-Headline for Dark Mode
           >
             Experience natural, human-like speech generation — without the premium price tag. Affordable, fast, and powerful
           </motion.p>

@@ -129,14 +129,13 @@ export default function Header() {
 
   return (
     <header className="bg-white dark:bg-gray-900 sticky top-0 z-50 shadow dark:shadow-lg transition-colors duration-300"> {/* Dark mode backgrounds and shadow */}
-      <div className="w-full px-7 py-4 flex items-center">
+      <div className="w-full px-2 md:px-7 py-4 flex items-center">
         {/* Logo */}
         <div className="w-[20%] flex items-center">
           <Link href="/" legacyBehavior>
             <a className="flex items-center space-x-2">
-              {/* Consider a dark mode version of your logo if it has light elements */}
-              <img src="/logo.png" alt="Logo" className="h-9 dark:invert" /> {/* Example: invert for dark mode if logo is light */}
-              <span className="text-xl font-bold text-black dark:text-white whitespace-nowrap">LowCost TTS</span> {/* Dark mode text */}
+              <img src="/logo.png" alt="Logo" className="h-7 md:h-9 dark:invert" />
+              <span className="text-lg md:text-xl font-bold text-black dark:text-white whitespace-nowrap">LowCost TTS</span>
             </a>
           </Link>
         </div>
@@ -145,7 +144,7 @@ export default function Header() {
         <nav className="w-[60%] justify-center space-x-2 hidden md:flex">
           {menuItems.map(({ href, label, icon }) => (
             <Link href={href} key={href} legacyBehavior>
-              <a className={`flex items-center px-4 py-1 rounded-md font-semibold text-base leading-9 text-black dark:text-gray-200 ${isActive(href) ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}> {/* Dark mode text and hover/active backgrounds */}
+              <a className={`flex items-center px-4 py-1 rounded-md font-semibold text-base leading-9 text-black dark:text-gray-200 ${isActive(href) ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                 {icon}
                 <span className="ml-2">{label}</span>
               </a>
@@ -160,8 +159,15 @@ export default function Header() {
           </div>
         )}
 
-        {/* Account Menu / Sign In / Dark Mode Toggle */}
-        <div className="absolute right-7 flex items-center space-x-3"> {/* Increased space for toggle */}
+        {/* Container for Right-side controls */}
+        <div className="absolute right-2 md:right-7 flex items-center space-x-3">
+          
+          {/* MODIFIED: The two sections below have been swapped */}
+
+          {/* 1. Dark Mode Toggle */}
+          <DarkModeToggle />
+
+          {/* 2. Account Menu / Sign In */}
           {loading ? (
             <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse">
 			</div>
@@ -171,21 +177,21 @@ export default function Header() {
                 {user.prefs?.picture ? (
                   <img src={user.prefs.picture} alt="Profile" className="w-10 h-10 rounded-full border-2 border-gray-200 hover:border-blue-400 transition-colors dark:border-gray-600 dark:hover:border-blue-300" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-700 border-2 border-gray-200 hover:border-blue-400 transition-colors dark:text-gray-300 dark:border-gray-600 dark:hover:border-blue-300"> {/* Dark mode background, text, border */}
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-700 border-2 border-gray-200 hover:border-blue-400 transition-colors dark:text-gray-300 dark:border-gray-600 dark:hover:border-blue-300">
                     {user.name?.[0] || user.email?.[0] || 'U'}
                   </div>
                 )}
               </button>
               {accountMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-100 dark:border-gray-700"> {/* Dark mode backgrounds and border */}
-                  <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700"> {/* Dark mode border */}
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.name || 'My Account'}</p> {/* Dark mode text */}
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email || ''}</p> {/* Dark mode text */}
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-100 dark:border-gray-700">
+                  <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.name || 'My Account'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email || ''}</p>
                   </div>
                   <div className="py-1">
                     {accountMenuItems.map(({ href, label, icon }) => (
                       <Link href={href} key={href} legacyBehavior>
-                        <a className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"> {/* Dark mode text and hover background */}
+                        <a className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">
                           {icon}
                           <span className="ml-2">{label}</span>
                         </a>
@@ -213,10 +219,8 @@ export default function Header() {
             </button>
           )}
 
-          <DarkModeToggle /> {/* Render the DarkModeToggle here */}
-
-          {/* Mobile Toggle */}
-          <button onClick={toggleMobileMenu} className="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none ml-2" aria-label="Toggle menu"> {/* Dark mode text */}
+          {/* 3. Mobile Toggle */}
+          <button onClick={toggleMobileMenu} className="md:hidden text-gray-700 dark:text-gray-300 focus:outline-none ml-2" aria-label="Toggle menu">
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -224,11 +228,11 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div ref={mobileMenuRef} className="md:hidden bg-white dark:bg-gray-800 shadow-lg mx-2 rounded-b-lg overflow-hidden"> {/* Dark mode background */}
+        <div ref={mobileMenuRef} className="md:hidden bg-white dark:bg-gray-800 shadow-lg rounded-b-lg overflow-hidden">
           <nav className="flex flex-col py-2">
             {menuItems.map(({ href, label, icon }) => (
               <Link href={href} key={href} legacyBehavior>
-                <a className={`flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 ${isActive(href) ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}> {/* Dark mode text and hover/active backgrounds */}
+                <a className={`flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 ${isActive(href) ? 'bg-gray-100 dark:bg-gray-700' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
                   <span className="mr-3">{icon}</span>
                   {label}
                 </a>
@@ -237,16 +241,16 @@ export default function Header() {
           </nav>
 
           {user && !loading && charUsed !== null && charTotal !== null && (
-            <div className="border-t border-gray-200 dark:border-gray-700 py-2 px-4"> {/* Dark mode border */}
+            <div className="border-t border-gray-200 dark:border-gray-700 py-2 px-4">
               <CapsuleQuotaIndicator used={charUsed} total={charTotal} />
             </div>
           )}
 
-          <div className="border-t border-gray-200 dark:border-gray-700 py-2"> {/* Dark mode border */}
+          <div className="border-t border-gray-200 dark:border-gray-700 py-2">
             {loading ? (
               <div className="px-4 py-3 flex items-center">
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mr-3"></div> {/* Dark mode background */}
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div> {/* Dark mode background */}
+                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse mr-3"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
               </div>
             ) : user ? (
               <>
@@ -254,18 +258,18 @@ export default function Header() {
                   {user.prefs?.picture ? (
                     <img src={user.prefs.picture} alt="Profile" className="w-8 h-8 rounded-full mr-3" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300 mr-3"> {/* Dark mode background and text */}
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300 mr-3">
                       {user.name?.[0] || user.email?.[0] || 'U'}
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name || 'My Account'}</p> {/* Dark mode text */}
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email || ''}</p> {/* Dark mode text */}
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name || 'My Account'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email || ''}</p>
                   </div>
                 </div>
                 {accountMenuItems.map(({ href, label, icon }) => (
                   <Link href={href} key={href} legacyBehavior>
-                    <a className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700"> {/* Dark mode text, hover background, border */}
+                    <a className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700 border-t border-gray-100 dark:border-gray-700">
                       <span className="mr-3">{icon}</span>
                       {label}
                     </a>

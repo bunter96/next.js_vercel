@@ -23,7 +23,7 @@ const DarkModeToggle = () => {
       root.classList.remove('light');
     } else {
       root.classList.remove('dark');
-      root.classList.add('light'); // 'light' class isn't used by Tailwind directly, but can be helpful for debugging or other CSS rules.
+      root.classList.add('light');
     }
     // Save theme to localStorage
     localStorage.setItem('theme', theme);
@@ -36,13 +36,13 @@ const DarkModeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600 transition-colors duration-200"
+      className="p-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none transition-colors duration-200"
       aria-label="Toggle dark mode"
     >
       {theme === 'dark' ? (
-        <SunIcon className="h-6 w-6" />
+        <SunIcon className="h-5 w-5" />
       ) : (
-        <MoonIcon className="h-6 w-6" />
+        <MoonIcon className="h-5 w-5" />
       )}
     </button>
   );

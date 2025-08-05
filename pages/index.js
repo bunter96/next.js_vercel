@@ -166,7 +166,7 @@ export default function Home() {
               </div>
               <h3 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">Speak to the World, in 13 Languages</h3>
               <p className="text-gray-600 dark:text-gray-300 text-lg">
-                Our AI currently supports 13 of the world's most spoken languages, including English, Japanese, Spanish, and Arabic. Connect with a global audience with authentic, high-quality voices.
+                Our AI currently supports 13 of the world&apos;s most spoken languages, including English, Japanese, Spanish, and Arabic. Connect with a global audience with authentic, high-quality voices.
               </p>
             </motion.div>
 

@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     console.log('Attempting to cancel subscription:', subscriptionId);
     const response = await fetch(
-      `https://test-api.creem.io/v1/subscriptions/${subscriptionId}/cancel`,
+      `${process.env.CREEM_API_BASE_URL}/v1/subscriptions/${subscriptionId}/cancel`,
       {
         method: 'POST',
         headers: {

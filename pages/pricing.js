@@ -37,23 +37,21 @@ const getAllUniqueFeatures = (plans) => {
 // Plan data
 const plans = [
   {
-    title: "Free", // Added Free Plan
+    title: "Free",
     monthly: formatCurrency(0),
     yearly: formatCurrency(0),
-    frequencyMonthly: "", // No frequency for free
-    frequencyYearly: "", // No frequency for free
-    description: "Ideal for trying out our basic features.",
+    frequencyMonthly: "/mo",
+    frequencyYearly: "/yr",
+    description: "For individuals who want to try out our platform",
     features: [
-      "1,000 monthly credits",
-      "Voice cloning",
-      "Limited Hours speech",
+      "10,000 monthly credits",
       "Audio Download",
-      "Limited Characters per conversion",
+      "Characters per conversion",
     ],
-    cta: "Try for Free",
+    cta: "Start for Free",
     featured: false,
-    monthlyId: null, // No product ID for free plan
-    yearlyId: null, // No product ID for free plan
+    monthlyId: 'free-monthly', // Special identifier for free plan
+    yearlyId: 'free-yearly',   // Special identifier for free plan
   },
   {
     title: "Starter",
@@ -158,6 +156,10 @@ const faqs = [
     question: "Can I upgrade or downgrade my plan later?",
     answer: "Yes, you can upgrade or downgrade your plan at any time through your account settings. Changes take effect at the start of the next billing cycle.",
   },
+    {
+    question: "How does the Free plan work?",
+    answer: "The Free plan gives you a taste of our features with a limited number of monthly credits. It's perfect for getting started without any commitment. You can upgrade to a paid plan at any time to unlock more features and credits.",
+  },
   {
     question: "Is there a free trial available?",
     answer: "We currently do not offer a free trial, but you can contact our support team to discuss your needs and explore our plans.",
@@ -205,63 +207,27 @@ export default function PricingPage() {
     "Priority generation",
     "Enhance reference audio",
   ];
-  // Removed activePlanId memo as currentActivePlan will now handle it.
-  // const activePlanId = useMemo(() => user?.active_product_id || null, [user]);
+  const activePlanId = useMemo(() => user?.active_product_id || null, [user]);
 
-  // Find the active plan object if subscribed, prioritizing 'free' from user_profiles
+  // Find the active plan object if subscribed
   const currentActivePlan = useMemo(() => {
-    if (user?.current_active_plan === 'free') {
-      // If user's active plan in DB is 'free', find the Free plan object
-      return plans.find(plan => plan.title === "Free");
-    }
-    // If not free, check for paid product IDs
-    if (!user?.active_product_id) return null;
-
+    if (!activePlanId) return null;
     for (const plan of plans) {
-      if (plan.monthlyId === user.active_product_id) return { ...plan, type: 'monthly' };
-      if (plan.yearlyId === user.active_product_id) return { ...plan, type: 'yearly' };
+      if (plan.monthlyId === activePlanId) return { ...plan, type: 'monthly' };
+      if (plan.yearlyId === activePlanId) return { ...plan, type: 'yearly' };
     }
     return null;
-  }, [user, plans]);
+  }, [activePlanId, plans]);
 
 
   // Helper function to actually process the subscription
   const processSubscription = async (plan) => {
-    // For the Free plan, no Stripe checkout is needed
-    if (plan.title === "Free") {
-      try {
-        setLoading(plan.title);
-        const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID; //
-        const collectionId = process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID; //
-        // Update user's active_product_id and current_active_plan to 'free'
-        await databases.updateDocument( //
-          databaseId, //
-          collectionId, //
-          user.$id, //
-          { active_product_id: '', current_active_plan: 'free', billing_cycle: '' } //
-        );
-        // Assuming setUser from AuthContext updates global user state
-        toast.success("You are now on the Free plan!", { duration: 3000 });
-        // Optionally, re-fetch user to ensure UI reflects changes immediately
-        // if the AuthContext doesn't automatically re-fetch on document update.
-        // This might be handled by AuthContext's internal useEffect if user document changes.
-      } catch (error) {
-        console.error("Failed to update user to Free plan:", error);
-        toast.error("Failed to switch to Free plan. Please try again.");
-      } finally {
-        setLoading(null);
-        setIsModalOpen(false);
-        setPlanToChangeTo(null);
-      }
-      return;
-    }
-
     try {
       setLoading(plan.title);
 
       const newPlanId = yearly ? plan.yearlyId : plan.monthlyId;
 
-      const jwtResponse = await account.createJWT(); //
+      const jwtResponse = await account.createJWT();
       if (!jwtResponse?.jwt) throw new Error('Failed to create authentication token');
 
       const response = await fetch('/api/create-checkout-session', {
@@ -300,35 +266,27 @@ export default function PricingPage() {
 
 
   const handleSubscribe = debounce(async (plan) => {
+    // Handle free plan separately
+    if (plan.title === 'Free') {
+      if (user) {
+        toast.success("You are already on the Free plan!");
+      } else {
+        toast("Redirecting to sign up...", { icon: '🚀' });
+        setTimeout(() => (window.location.href = '/login'), 800);
+      }
+      return;
+    }
+
     if (!user) {
       toast.error("Please log in to subscribe.", { duration: 2500 });
       setTimeout(() => (window.location.href = '/login'), 800);
       return;
     }
 
-    // Special handling for Free plan:
-    // If the user wants to subscribe to Free, and they are already on Free,
-    // or if they are on a paid plan and want to downgrade to Free,
-    // we don't need a checkout session.
-    if (plan.title === "Free") {
-      if (currentActivePlan && currentActivePlan.title === "Free") {
-        toast("You are already on the Free plan!", {
-          duration: 3000,
-          icon: 'ℹ️',
-        });
-        return;
-      } else {
-        // If downgrading from a paid plan to Free
-        setPlanToChangeTo(plan);
-        setIsModalOpen(true);
-        return;
-      }
-    }
-
     const newPlanId = yearly ? plan.yearlyId : plan.monthlyId;
 
-    // Check if the user is already subscribed to this exact paid plan
-    if (currentActivePlan && (currentActivePlan.monthlyId === newPlanId || currentActivePlan.yearlyId === newPlanId)) {
+    // Check if the user is already subscribed to this exact plan
+    if (activePlanId === newPlanId) {
       toast("You're already subscribed to this plan!", {
         duration: 3000,
         icon: 'ℹ️',
@@ -336,14 +294,14 @@ export default function PricingPage() {
       return;
     }
 
-    // If user has an active paid plan and is trying to switch to another paid plan, open the modal
-    if (currentActivePlan && currentActivePlan.title !== "Free") {
+    // If user has an active plan, open the modal for confirmation
+    if (currentActivePlan) {
       setPlanToChangeTo(plan); // Store the plan details for the modal
       setIsModalOpen(true);    // Open the modal
       return; // Stop here, wait for modal confirmation
     }
 
-    // If no active paid plan (or currently on Free and switching to paid), proceed directly
+    // If no active plan, proceed directly
     processSubscription(plan);
 
   }, 300);
@@ -359,7 +317,6 @@ export default function PricingPage() {
   if (process.env.NODE_ENV === 'development') {
     const userPropTypes = {
       active_product_id: PropTypes.string,
-      current_active_plan: PropTypes.string, // Added for prop type checking
     };
     if (user) PropTypes.checkPropTypes(userPropTypes, user, 'user', 'PricingPage');
   }
@@ -426,10 +383,11 @@ export default function PricingPage() {
           initial="hidden"
           animate="visible"
           viewport={{ once: true, margin: "100px" }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-6 lg:gap-10" // Changed to md:grid-cols-4 for Free plan
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
         >
           {memoizedPlans.map((plan, idx) => {
-            const isActivePlan = currentActivePlan && currentActivePlan.title === plan.title;
+            const planId = yearly ? plan.yearlyId : plan.monthlyId;
+            const isSubscribed = activePlanId === planId;
 
             return (
               <motion.div
@@ -439,42 +397,34 @@ export default function PricingPage() {
                 className={`rounded-3xl shadow-xl p-8 flex flex-col items-center text-center bg-white transition-all duration-300 hover:shadow-2xl dark:bg-gray-800 dark:shadow-2xl dark:hover:shadow-3xl
                   ${
                     plan.featured
-                      ? "border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 relative overflow-hidden dark:from-indigo-900 dark:to-purple-900"
+                      ? "border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 relative overflow-hidden dark:from-indigo-900 dark:to-purple-900 md:scale-105"
                       : "border border-gray-100 dark:border-gray-700"
                   }
-                  ${isActivePlan ? "ring-2 ring-green-500 bg-green-50 dark:ring-green-400 dark:bg-green-950" : ""}
-                  ${plan.featured ? "transform scale-105" : ""}`}
+                  ${isSubscribed ? "ring-2 ring-green-500 bg-green-50 dark:ring-green-400 dark:bg-green-950" : ""}`}
                 aria-describedby={`plan-${plan.title}-description`}
               >
                 {plan.featured && (
                   <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600" />
                 )}
-                {/* START MODIFICATION HERE */}
-                <div className="flex flex-col items-center w-full"> {/* Changed to flex-col to stack items centrally */}
-                  {/* New div to group the title and active badge, centering them as a unit */}
-                  <div className="flex items-center justify-center gap-3 mb-3"> {/* Added mb-3 for spacing below this group */}
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100"> {/* Removed mb-3 from h2 itself */}
-                      {plan.title}
-                    </h2>
-                    {/* isActivePlan correctly determines if the plan is active */}
-                    {isActivePlan && (
+                <div className="relative w-full text-center">
+                  <div className="flex items-center justify-center gap-3">
+                    {isSubscribed && (
                       <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full dark:bg-green-700 dark:text-green-100">
                         Active
                       </span>
                     )}
-                  </div> {/* End of title and active badge group */}
-                  {/* Most Popular badge, now displayed below the title/active group if featured */}
-                  {plan.featured && (
-                    <span className="px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 rounded-full dark:bg-indigo-700 dark:text-indigo-100">
-                      Most Popular
-                    </span>
-                  )}
+                    <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">{plan.title}</h2>
+                    {plan.featured && (
+                      <span className="px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 rounded-full dark:bg-indigo-700 dark:text-indigo-100">
+                        Most Popular
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {/* END MODIFICATION HERE */}
                 <p className="text-4xl font-extrabold mb-2 text-gray-900 dark:text-white">
-                  {plan.title === "Free" ? plan.monthly : (yearly ? plan.yearly : plan.monthly)}
+                  {yearly ? plan.yearly : plan.monthly}
                   <span className="text-xl font-normal text-gray-500 dark:text-gray-400">
-                    {plan.title === "Free" ? "" : (yearly ? plan.frequencyYearly : plan.frequencyMonthly)}
+                    {yearly ? plan.frequencyYearly : plan.frequencyMonthly}
                   </span>
                 </p>
                 <p id={`plan-${plan.title}-description`} className="text-gray-600 mb-6 text-base dark:text-gray-300">
@@ -496,20 +446,19 @@ export default function PricingPage() {
                 </ul>
                 <motion.button
                   variants={buttonVariants}
-                  // Disable hover/tap animations for the active plan or if loading
-                  whileHover={isActivePlan || loading === plan.title ? {} : buttonVariants.hover}
-                  whileTap={isActivePlan || loading === plan.title ? {} : buttonVariants.tap}
+                  whileHover={isSubscribed ? {} : buttonVariants.hover}
+                  whileTap={isSubscribed ? {} : buttonVariants.tap}
                   onClick={() => handleSubscribe(plan)}
-                  disabled={isActivePlan || loading === plan.title}
+                  disabled={isSubscribed || loading === plan.title}
                   className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center focus:ring-4 focus:ring-indigo-300 dark:focus:ring-indigo-600
                     ${
-                      isActivePlan
+                      isSubscribed
                         ? 'bg-green-600 text-white cursor-not-allowed dark:bg-green-700'
                         : plan.featured
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800'
                         : 'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600'
                     }`}
-                  aria-label={isActivePlan ? `${plan.title} plan is active` : `Subscribe to ${plan.title} plan`}
+                  aria-label={isSubscribed ? `${plan.title} plan is active` : `Subscribe to ${plan.title} plan`}
                 >
                   {loading === plan.title ? (
                     <>
@@ -519,8 +468,8 @@ export default function PricingPage() {
                       </svg>
                       Loading...
                     </>
-                  ) : isActivePlan ? (
-                    "Current Plan" // Changed from "Subscribed" to "Current Plan"
+                  ) : isSubscribed ? (
+                    "Subscribed"
                   ) : (
                     plan.cta
                   )}
@@ -567,15 +516,24 @@ export default function PricingPage() {
                       <td className="p-4 text-left font-medium sticky left-0 bg-white z-10 dark:bg-gray-800 dark:text-gray-300">
                         {feature}
                       </td>
-                      {memoizedPlans.map((plan, j) => (
-                        <td key={j} className="p-4 text-center">
-                          {plan.features.includes(feature) ? (
-                            <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
-                          ) : (
-                            <span className="text-gray-400 dark:text-gray-600">—</span>
-                          )}
-                        </td>
-                      ))}
+                      {memoizedPlans.map((plan, j) => {
+                          let cellContent;
+                          if (feature === "Monthly credits") {
+                            const creditFeature = plan.features.find(f => f.includes('credits'));
+                            cellContent = creditFeature ? <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{creditFeature.replace(/ monthly credits/g, '')}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>;
+                          } else {
+                            cellContent = plan.features.includes(feature) ? (
+                              <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-600">—</span>
+                            );
+                          }
+                          return (
+                            <td key={j} className="p-4 text-center">
+                              {cellContent}
+                            </td>
+                          );
+                        })}
                     </motion.tr>
                   ))}
                 </tbody>
@@ -607,15 +565,24 @@ export default function PricingPage() {
                     <td className="p-4 font-medium text-left sticky left-0 bg-white z-10 dark:bg-gray-800 dark:text-gray-300">
                       {feature}
                     </td>
-                    {memoizedPlans.map((plan, j) => (
-                      <td key={j} className="p-4 text-center">
-                        {plan.features.includes(feature) ? (
-                          <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
-                        ) : (
-                          <span className="text-gray-400 dark:text-gray-600">—</span>
-                        )}
-                      </td>
-                    ))}
+                    {memoizedPlans.map((plan, j) => {
+                        let cellContent;
+                        if (feature === "Monthly credits") {
+                          const creditFeature = plan.features.find(f => f.includes('credits'));
+                          cellContent = creditFeature ? <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{creditFeature.replace(/ monthly credits/g, '')}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>;
+                        } else {
+                          cellContent = plan.features.includes(feature) ? (
+                            <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-600">—</span>
+                          );
+                        }
+                        return (
+                          <td key={j} className="p-4 text-center">
+                            {cellContent}
+                          </td>
+                        );
+                      })}
                   </motion.tr>
                 ))}
               </tbody>

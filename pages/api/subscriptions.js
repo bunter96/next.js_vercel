@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://test-api.creem.io/v1/subscriptions?subscription_id= ${subscription_id}`,
+      `${process.env.CREEM_API_BASE_URL}/v1/subscriptions?subscription_id=${subscription_id}`,
       {
         method: 'GET',
         headers: {

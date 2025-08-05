@@ -18,6 +18,14 @@ const Login = () => {
   const [errors, setErrors] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
+  // --- New State for Forgot Password Modal ---
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordError, setForgotPasswordError] = useState('');
+  const [isSendingRecovery, setIsSendingRecovery] = useState(false);
+  const [recoverySent, setRecoverySent] = useState(false);
+
+
   // Show verification prompt if verify=true
   useEffect(() => {
     if (verify === 'true') {
@@ -48,6 +56,7 @@ const Login = () => {
       } catch (error) {
         console.warn('No sessions to clear:', error);
       }
+      // Redirect to the server-side route that initiates Google OAuth
       window.location.href = '/api/auth/login';
     } catch (error) {
       console.error('Error initiating Google login:', error);
@@ -134,6 +143,40 @@ const Login = () => {
       setIsSigningIn(false);
     }
   };
+
+  // --- New Function to Handle Forgot Password ---
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setForgotPasswordError('');
+    if (!validateEmail(forgotPasswordEmail)) {
+        setForgotPasswordError('Please enter a valid email address.');
+        return;
+    }
+    setIsSendingRecovery(true);
+    try {
+        const resetUrl = `${window.location.origin}/reset-password`;
+        await account.createRecovery(forgotPasswordEmail, resetUrl);
+        setRecoverySent(true);
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        setForgotPasswordError('Failed to send recovery email. Please check the email and try again.');
+        toast.error('Failed to send recovery email. Please try again.', {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: true,
+        });
+    } finally {
+        setIsSendingRecovery(false);
+    }
+  };
+
+  const openForgotPasswordModal = () => {
+    setForgotPasswordEmail(email); // Pre-fill email from login form
+    setForgotPasswordError('');
+    setRecoverySent(false);
+    setIsForgotPasswordModalOpen(true);
+  };
+
 
   if (loading) {
     return (
@@ -335,9 +378,13 @@ const Login = () => {
 
                 <div className="flex items-center justify-end">
                   <div className="text-sm">
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                    <button
+                      type="button"
+                      onClick={openForgotPasswordModal}
+                      className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    >
                       Forgot your password?
-                    </a>
+                    </button>
                   </div>
                 </div>
 
@@ -385,6 +432,79 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+       {/* Forgot Password Modal */}
+       {isForgotPasswordModalOpen && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-md m-4">
+            {!recoverySent ? (
+              <form onSubmit={handleForgotPasswordSubmit}>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Reset your password</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                  Enter your email address and we will send you a link to reset your password.
+                </p>
+                <div className="mt-4">
+                  <label htmlFor="forgot-password-email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                    Email address
+                  </label>
+                  <input
+                    id="forgot-password-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    className={`mt-1 block w-full sm:text-sm rounded-md py-3 px-4 ${
+                        forgotPasswordError
+                        ? 'border-red-300 dark:border-red-600 text-red-900 dark:text-red-400 placeholder-red-300 dark:placeholder-red-400 focus:outline-none focus:ring-red-500 dark:focus:ring-red-400 focus:border-red-500 dark:focus:border-red-400'
+                        : 'border-gray-300 dark:border-gray-700 focus:ring-indigo-500 focus:border-indigo-500'
+                    }`}
+                    placeholder="you@example.com"
+                    required
+                  />
+                   {forgotPasswordError && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                        {forgotPasswordError}
+                      </p>
+                    )}
+                </div>
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordModalOpen(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSendingRecovery}
+                    className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500 disabled:opacity-50"
+                  >
+                    {isSendingRecovery ? 'Sending...' : 'Send reset link'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+                <div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Check your inbox</h3>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                        We've sent a password reset link to <strong>{forgotPasswordEmail}</strong>. Please check your email and follow the instructions.
+                    </p>
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={() => setIsForgotPasswordModalOpen(false)}
+                            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-indigo-500"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };

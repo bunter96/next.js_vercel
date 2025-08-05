@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       apiKey: process.env.CREEM_API_KEY ? 'Set' : 'Missing',
     });
 
-    const response = await fetch('https://test-api.creem.io/v1/checkouts', {
+    const response = await fetch(`${process.env.CREEM_API_BASE_URL}/v1/checkouts`, {
       method: 'POST',
       headers: {
         'x-api-key': process.env.CREEM_API_KEY,

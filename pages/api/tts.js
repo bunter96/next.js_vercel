@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await axios.post(
-      'https://api.fish.audio/v1/tts',
+      `${process.env.FISH_AUDIO_API_BASE_URL}/v1/tts`,
       {
         text: text.trim(),
         reference_id: modelId.trim(),
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         headers: {
           Authorization: `Bearer ${process.env.FISH_AUDIO_API_KEY}`,
           'Content-Type': 'application/json',
-		  'model': 'speech-1.6',
+		  'model': process.env.FISH_AUDIO_SPEECH_MODEL,
         },
         responseType: 'arraybuffer', // For audio binary
       }

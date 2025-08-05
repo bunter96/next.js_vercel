@@ -15,8 +15,8 @@ export default async function handler(req, res) {
   try {
     // Find and delete the subscription document
     const subscriptionResponse = await serverDatabases.listDocuments(
-      '67fecfed002f909fc072', // Database ID
-      '682c300c001640914033', // Subscriptions Collection ID
+       process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+       process.env.NEXT_PUBLIC_APPWRITE_SUBSCRIPTIONS_COLLECTION_ID,
       [Query.equal('user_id', userId)]
     );
 
@@ -25,8 +25,8 @@ export default async function handler(req, res) {
       console.log('Found subscription document to delete:', subscriptionDoc.$id);
 
       await serverDatabases.deleteDocument(
-        '67fecfed002f909fc072',
-        '682c300c001640914033',
+        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+        process.env.NEXT_PUBLIC_APPWRITE_SUBSCRIPTIONS_COLLECTION_ID,
         subscriptionDoc.$id
       );
       console.log(`Deleted subscription document ${subscriptionDoc.$id} for user ${userId}`);
@@ -36,8 +36,8 @@ export default async function handler(req, res) {
 
     // Find and update the user profile to remove specified attributes
     const profileResponse = await serverDatabases.listDocuments(
-      '67fecfed002f909fc072', // Database ID
-      '67fecffb00075d13ade6', // User Profiles Collection ID
+      process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+      process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
       [Query.equal('$id', userId)]
     );
 
@@ -49,8 +49,8 @@ export default async function handler(req, res) {
     console.log('Found user profile to update:', profileDoc.$id);
 
     await serverDatabases.updateDocument(
-      '67fecfed002f909fc072',
-      '67fecffb00075d13ade6',
+      process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+      process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID,
       profileDoc.$id,
       {
         creem_customer_id: null,

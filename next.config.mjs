@@ -1,12 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	  images: {
-    domains: [
-      'lh3.googleusercontent.com', // Allow Google profile picture URLs
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+      },
     ],
   },
-	
-  reactStrictMode: true,
 };
 
 export default nextConfig;

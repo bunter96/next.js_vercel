@@ -110,42 +110,79 @@ export default async function handler(req, res) {
         const expiryDate = new Date();
         expiryDate.setMonth(expiryDate.getMonth() + (metadata.billing_cycle === 'yearly' ? 12 : 1));
 
-		// Update user profile with subscription info
-		const updateRes = await serverDatabases.updateDocument(
-		  '67fecfed002f909fc072',
-		  '67fecffb00075d13ade6',
-		  profile.$id,
-		  {
-			plan_type: metadata.plan_name,
-			char_allowed: plan.chars,
-			char_remaining: plan.chars,
-			current_plan_start_date: startDate,
-			current_plan_expiry_date: expiryDate.toISOString(),
-			active_product_id: product.id,
-			billing_cycle: metadata.billing_cycle,
-			creem_customer_id: customer.id,
-			creem_subscription_id: event.object.id
-		  }
-		);
+        // Prepare the data object for the profile update
+        let updateData = {
+          plan_type: metadata.plan_name,
+          char_allowed: plan.chars,
+          char_remaining: plan.chars,
+          current_plan_start_date: startDate,
+          current_plan_expiry_date: expiryDate.toISOString(),
+          active_product_id: product.id,
+          billing_cycle: metadata.billing_cycle,
+          creem_customer_id: customer.id,
+          creem_subscription_id: event.object.id,
+		  current_active_plan: metadata.plan_name
+        };
+
+        // Add plan-specific attributes based on the plan name
+        switch (metadata.plan_name) {
+            case 'Starter Monthly':
+                updateData.voice_clone_allowed = 3;
+                updateData.voice_clone_used = 0;
+                break;
+            case 'Starter Yearly':
+                updateData.voice_clone_allowed = 10;
+                updateData.voice_clone_used = 0;
+                break;
+            case 'Pro Monthly':
+                updateData.voice_clone_allowed = 10;
+                updateData.voice_clone_used = 0;
+                break;
+            case 'Pro Yearly':
+                updateData.voice_clone_allowed = 20;
+                updateData.voice_clone_used = 0;
+                break;
+            case 'Turbo Monthly':
+                updateData.voice_clone_allowed = 25;
+                updateData.voice_clone_used = 0;
+                break;
+            case 'Turbo Yearly':
+                updateData.voice_clone_allowed = 50;
+                updateData.voice_clone_used = 0;
+                break;
+        }
+
+        // Only set is_active to true if it is not already true
+        if (!profile.is_active) {
+            updateData.is_active = true;
+        }
+
+        // Update user profile with the combined subscription info
+        const updateRes = await serverDatabases.updateDocument(
+          '67fecfed002f909fc072',
+          '67fecffb00075d13ade6',
+          profile.$id,
+          updateData // Pass the dynamically built object here
+        );
 
         console.log(`Updated user profile for ${customer.email} to plan ${metadata.plan_name}`);
         console.log('Profile update response:', updateRes);
 
         // Push to subscription collection
         const subscriptionData = {
-          user_id: profile.$id, // or customer.email if preferred
-          created_at: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
+          user_id: profile.$id,
+          created_at: Math.floor(Date.now() / 1000),
           current_period_start_date: startDate,
           current_period_end_date: expiryDate.toISOString(),
           plan_name: metadata.plan_name,
           billing_cycle: metadata.billing_cycle,
-          status: 'active', // Adjust based on event.object.status if available
+          status: 'active',
         };
 
         // Check if subscription already exists for this user
         const existingSubscriptions = await serverDatabases.listDocuments(
           '67fecfed002f909fc072', // Database ID
-          '682c300c001640914033', // Replace with actual subscription collection ID
+          '682c300c001640914033', // Replace with your actual subscription collection ID
           [Query.equal('user_id', profile.$id)]
         );
 
@@ -164,7 +201,7 @@ export default async function handler(req, res) {
           await serverDatabases.createDocument(
             '67fecfed002f909fc072',
             '682c300c001640914033',
-            'unique()', // Auto-generate document ID
+            'unique()',
             subscriptionData
           );
           console.log(`Created new subscription for user ${profile.$id}`);

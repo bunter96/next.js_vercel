@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/context/AuthContext'; // Corrected import path for AuthContext
 import { account, databases } from '@/lib/appwriteConfig';
 import DarkModeToggle from './DarkModeToggle'; // Import the DarkModeToggle component
+import { APP_NAME, SHOW_LOGO_IN_HEADER, LOGO_SRC, LOGO_ALT, SHOW_TEXT_IN_FOOTER, SHOW_TEXT_IN_HEADER  } from '@/lib/config';
 
 // CapsuleQuotaIndicator Component
 function CapsuleQuotaIndicator({ used, total }) {
@@ -132,12 +133,19 @@ export default function Header() {
       <div className="w-full px-2 md:px-7 py-4 flex items-center">
         {/* Logo */}
         <div className="w-[20%] flex items-center">
-          <Link href="/" legacyBehavior>
-            <a className="flex items-center space-x-2">
-              <img src="/logo.png" alt="Logo" className="h-7 md:h-9 dark:invert" />
-              <span className="text-lg md:text-xl font-bold text-black dark:text-white whitespace-nowrap">LowCost TTS</span>
-            </a>
-          </Link>
+		<Link href="/" legacyBehavior>
+		  <a className="flex items-center space-x-2">
+			{SHOW_LOGO_IN_HEADER && (
+			  <img src={LOGO_SRC} alt={LOGO_ALT} className="h-7 md:h-9 dark:invert" />
+			)}
+			{SHOW_TEXT_IN_HEADER && (
+			  <span className="text-lg md:text-xl font-bold text-black dark:text-white whitespace-nowrap">
+				{APP_NAME}
+			  </span>
+			)}
+		  </a>
+		</Link>
+
         </div>
 
         {/* Navigation */}

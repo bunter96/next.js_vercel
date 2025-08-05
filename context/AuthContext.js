@@ -57,8 +57,8 @@ export function AuthProvider({ children }) {
               active_product_id: '',
               billing_cycle: '',
               is_admin: false,
-			  voice_clone_allowed: 1,
-			  voice_clone_used: 1,
+			        voice_clone_allowed: 1,
+			        voice_clone_used: 1,
             },
             [
               Permission.read(Role.user(userData.$id)),

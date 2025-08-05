@@ -346,6 +346,13 @@ export default function TextToSpeech() {
       toast.error('Please sign in to generate speech.');
       return;
     }
+
+    // Check if the user's account is active
+    if (!user.is_active) {
+      toast.error('Your account is not active. Please contact support.');
+      return;
+    }
+    
     if (!text.trim()) {
       toast.error('Please enter text to convert.');
       return;

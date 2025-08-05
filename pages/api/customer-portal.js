@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     console.log('Requesting portal for customerId:', customerId);
     console.log('Using CREEM_API_KEY:', process.env.CREEM_API_KEY.substring(0, 4) + '...');
 
-    const response = await fetch('https://test-api.creem.io/v1/customers/billing', {
+    const response = await fetch(`${process.env.CREEM_API_BASE_URL}/v1/customers/billing`, {
       method: 'POST',
       headers: {
         'x-api-key': process.env.CREEM_API_KEY,

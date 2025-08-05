@@ -107,6 +107,6 @@ const sections = [
   {
     title: "10. Contact Us",
     content:
-      "If you have questions about this GDPR policy or want to exercise your rights, please contact us at [Your Contact Email].",
+      "If you have questions about this GDPR policy or want to exercise your rights, please contact us at buntercodes@gmail.com .",
   },
 ];

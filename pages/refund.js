@@ -43,7 +43,7 @@ const sections = [
   {
     title: "7. Contact",
     content:
-      "If you have any questions about our Refund Policy, please contact us at [Your Support Email].",
+      "If you have any questions about our Refund Policy, please contact us at buntercodes@gmail.com .",
   },
 ];
 

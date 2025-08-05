@@ -35,10 +35,10 @@ export default function TermsOfService() {
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-gray-700 dark:text-gray-300 text-base leading-relaxed text-center">
               For any questions or concerns, please contact us at{' '}
               <a
-                href="mailto:support@lowcosttts.com"
+                href="mailto:buntercodes@gmail.com"
                 className="text-blue-600 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                support@lowcosttts.com
+                buntercodes@gmail.com
               </a>
               .
             </div>

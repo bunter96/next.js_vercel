@@ -1,6 +1,7 @@
 // components/Footer.js
 import Link from 'next/link';
 import Image from 'next/image';
+import { APP_NAME, LOGO_SRC, LOGO_ALT, SHOW_LOGO_IN_FOOTER, SHOW_TEXT_IN_FOOTER } from '@/lib/config';
 
 const socialLinks = [
   {
@@ -39,14 +40,18 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row md:justify-between items-center text-gray-400">
           <div className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start space-x-2">
-              <Image
-                src="/logo.png"
-                alt="LowCost TTS logo"
-                width={32}
-                height={32}
-                className="invert"
-              />
-              <h2 className="text-lg font-semibold text-white">LowCost TTS</h2>
+              {SHOW_LOGO_IN_FOOTER && (
+                <Image
+                  src={LOGO_SRC}
+                  alt={LOGO_ALT}
+                  width={32}
+                  height={32}
+                  className="invert"
+                />
+              )}
+              {SHOW_TEXT_IN_FOOTER && (
+                <h2 className="text-lg font-semibold text-white">{APP_NAME}</h2>
+              )}
             </div>
             <p className="mt-2 text-sm max-w-xs">
               Experience natural, human-like speech generation — without the premium price tag. Affordable, fast, and powerful.
@@ -54,24 +59,11 @@ export default function Footer() {
           </div>
 
           <div className="mt-6 md:mt-0 flex flex-wrap justify-center gap-4 md:gap-6">
-            <Link href="/about" className="hover:text-white text-sm transition-colors duration-200" prefetch={false}>
-              About
-            </Link>
-            <Link href="/contact-us" className="hover:text-white text-sm transition-colors duration-200" prefetch={false}>
-              Contact
-            </Link>
-            <Link href="/privacy-policy" className="hover:text-white text-sm transition-colors duration-200">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-white text-sm transition-colors duration-200">
-              Terms
-            </Link>
-            <Link href="/refund" className="hover:text-white text-sm transition-colors duration-200">
-              Refund
-            </Link>
-	        <Link href="/gdpr" className="hover:text-white text-sm transition-colors duration-200">
-              GDPR Compliance
-            </Link>
+            <Link href="/contact-us" className="hover:text-white text-sm transition-colors duration-200" prefetch={false}>Contact</Link>
+            <Link href="/privacy-policy" className="hover:text-white text-sm transition-colors duration-200">Privacy</Link>
+            <Link href="/terms" className="hover:text-white text-sm transition-colors duration-200">Terms</Link>
+            <Link href="/refund" className="hover:text-white text-sm transition-colors duration-200">Refund</Link>
+            <Link href="/gdpr" className="hover:text-white text-sm transition-colors duration-200">GDPR Compliance</Link>
           </div>
         </div>
 
@@ -91,7 +83,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 text-center text-sm text-white">
-          © {new Date().getFullYear()} LowCost TTS — All rights reserved.
+          © {new Date().getFullYear()} {APP_NAME} — All rights reserved.
         </div>
       </div>
     </footer>

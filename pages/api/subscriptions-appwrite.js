@@ -14,8 +14,8 @@ export default async function handler(req, res) {
 
   try {
     const response = await serverDatabases.listDocuments(
-      '67fecfed002f909fc072', // Database ID
-      '682c300c001640914033', // Subscription collection ID
+      process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+      process.env.NEXT_PUBLIC_APPWRITE_SUBSCRIPTIONS_COLLECTION_ID,
       [Query.equal('user_id', user_id)]
     );
 

@@ -123,7 +123,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-indigo-100 dark:text-gray-300"
           >
-            Experience natural, human-like speech generation — without the premium price tag. Affordable, fast, and powerful
+            Experience natural, human-like speech generation &mdash; without the premium price tag. Affordable, fast, and powerful
           </motion.p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

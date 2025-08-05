@@ -51,8 +51,7 @@ export default function CookieConsent() {
       </div>
       <p className="text-gray-600 dark:text-gray-300 mb-5">
         We use essential cookies to ensure the proper functioning of our
-        website. By clicking "Accept," you agree to our use of these
-        cookies.{" "}
+        website. By clicking &quot;Accept,&quot; you agree to our use of these cookies.{" "}
         <Link
           href="/privacy-policy"
           className="font-semibold text-blue-500 hover:text-blue-400 underline"

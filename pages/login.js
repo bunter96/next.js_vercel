@@ -489,7 +489,7 @@ const Login = () => {
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Check your inbox</h3>
                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                        We've sent a password reset link to <strong>{forgotPasswordEmail}</strong>. Please check your email and follow the instructions.
+                        We&apos;ve sent a password reset link to <strong>{forgotPasswordEmail}</strong>. Please check your email and follow the instructions.
                     </p>
                     <div className="mt-6 flex justify-end">
                         <button

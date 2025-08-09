@@ -285,7 +285,7 @@ const Profile = () => {
           autoClose: 1000,
         });
         setTimeout(() => {
-          window.location.href = 'http://localhost:3000/';
+          window.location.href = process.env.NEXT_PUBLIC_BASE_URL;
         }, 1000);
       } else {
         throw new Error(result.message || 'Failed to delete account.');

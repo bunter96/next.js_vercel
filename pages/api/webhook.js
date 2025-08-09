@@ -78,10 +78,12 @@ export default async function handler(req, res) {
 
         // Plan details for profile update
         const planDetails = {
-          'prod_1B1DSJwW6nBTYgQYFsxP7': { chars: 20000 }, // Pro Yearly
-          'prod_1308g86Vz0IIqbZgpPa9o4': { chars: 5000 },  // Starter Monthly (old)
-          'prod_3hWM6T8Iu8GZsUFsyQgrnB': { chars: 5000 },  // Starter Yearly
-          'prod_3d6z0m8mKmzuV6LvPwc0jf': { chars: 5000 },  // Starter Monthly (new)
+		  'prod_3d6z0m8mKmzuV6LvPwc0jf': { chars: 50000 },  // Starter Monthly
+		  'prod_3hWM6T8Iu8GZsUFsyQgrnB': { chars: 600000 },  // Starter Yearly
+          'prod_1308g86Vz0IIqbZgpPa9o4': { chars: 100000 }, // Pro Monthly
+          'prod_1B1DSJwW6nBTYgQYFsxP7': { chars: 1200000 },   // Pro Yearly
+		  'prod_xNBLeAW61WSH5dmRcBxPP': { chars: 300000 },   // Turbo Monthly
+		  'prod_23qN6cgjlpiCtD3OfY2JqH': { chars: 3600000 },  // Turbo Yearly          
         };
 
         const plan = planDetails[product.id] || { chars: 1000 };

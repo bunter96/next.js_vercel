@@ -4,15 +4,10 @@ import { Query } from 'appwrite';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
-  // Log all headers and body for debugging
-  console.log('Webhook headers:', req.headers);
-  console.log('Webhook body:', req.body);
-
   // Verify webhook signature
   const verifyWebhook = () => {
     const secret = process.env.CREEM_WEBHOOK_SECRET;
     if (!secret) {
-      console.error('Webhook secret not configured');
       return false;
     }
 
@@ -26,13 +21,11 @@ export default async function handler(req, res) {
     for (const header of possibleHeaders) {
       signature = req.headers[header.toLowerCase()];
       if (signature) {
-        console.log(`Found signature in header: ${header}`);
         break;
       }
     }
 
     if (!signature) {
-      console.error('Missing webhook signature');
       return false;
     }
 
@@ -46,10 +39,8 @@ export default async function handler(req, res) {
         Buffer.from(signature),
         Buffer.from(computedSignature)
       );
-      console.log('Signature verification:', { signature, computedSignature, isValid });
       return isValid;
     } catch (error) {
-      console.error('Signature verification error:', error.message);
       return false;
     }
   };
@@ -60,14 +51,11 @@ export default async function handler(req, res) {
 
   // Check webhook authenticity
   if (!verifyWebhook()) {
-    console.error('Webhook verification failed');
     return res.status(401).json({ message: 'Unauthorized webhook' });
   }
 
   const event = req.body;
   const eventType = event.eventType || event.type;
-  console.log('Webhook received:', event);
-  console.log('Handling event type:', eventType);
 
   try {
     if (eventType === 'subscription.paid') {
@@ -75,11 +63,8 @@ export default async function handler(req, res) {
 
       // Validate payload
       if (!customer?.email || !product?.id || !metadata?.plan_name) {
-        console.error('Invalid webhook payload:', { customer, product, metadata });
         return res.status(400).json({ message: 'Invalid webhook payload' });
       }
-
-      console.log('Processing subscription.paid for email:', customer.email);
 
       // Find user profile using server-side client
       const response = await serverDatabases.listDocuments(
@@ -88,14 +73,8 @@ export default async function handler(req, res) {
         [Query.equal('user_email', customer.email)]
       );
 
-      console.log('Appwrite query response:', {
-        total: response.total,
-        documents: response.documents,
-      });
-
       if (response.documents.length > 0) {
         const profile = response.documents[0];
-        console.log('Found profile:', profile);
 
         // Plan details for profile update
         const planDetails = {
@@ -158,15 +137,12 @@ export default async function handler(req, res) {
         }
 
         // Update user profile with the combined subscription info
-        const updateRes = await serverDatabases.updateDocument(
+        await serverDatabases.updateDocument(
           '67fecfed002f909fc072',
           '67fecffb00075d13ade6',
           profile.$id,
           updateData // Pass the dynamically built object here
         );
-
-        console.log(`Updated user profile for ${customer.email} to plan ${metadata.plan_name}`);
-        console.log('Profile update response:', updateRes);
 
         // Push to subscription collection
         const subscriptionData = {
@@ -195,7 +171,6 @@ export default async function handler(req, res) {
             subscription.$id,
             subscriptionData
           );
-          console.log(`Updated subscription for user ${profile.$id}`);
         } else {
           // Create new subscription
           await serverDatabases.createDocument(
@@ -204,16 +179,12 @@ export default async function handler(req, res) {
             'unique()',
             subscriptionData
           );
-          console.log(`Created new subscription for user ${profile.$id}`);
         }
-      } else {
-        console.log('No profile found for email:', customer.email);
       }
     }
 
     return res.status(200).json({ message: 'Webhook processed' });
   } catch (error) {
-    console.error('Webhook error:', error.message, error.stack);
     return res.status(500).json({ message: 'Webhook failed', error: error.message });
   }
 }

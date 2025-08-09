@@ -24,15 +24,12 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Creem API error response:', errorData);
       throw new Error(errorData.message?.[0] || `Failed to fetch subscription`);
     }
 
     const data = await response.json();
-    console.log('Creem API response:', data);
     res.status(200).json(data); // e.g., { id, product, status, next_transaction_date }
   } catch (error) {
-    console.error('Error fetching subscription:', error.message);
     res.status(500).json({ error: `Failed to fetch subscription: ${error.message}` });
   }
 }

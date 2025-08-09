@@ -57,7 +57,10 @@ export default function BrowseModels() {
         const response = await databases.listDocuments(
           process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
           process.env.NEXT_PUBLIC_APPWRITE_BROWSE_MODELS_COLLECTION_ID,
-          [Query.orderDesc('$createdAt')]
+          [
+            Query.equal('is_active', true), // Fetches only documents where is_active is true
+            Query.orderDesc('$createdAt')
+          ]
         );
 
         const modelsWithMetadata = response.documents.map(model => ({

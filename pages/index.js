@@ -291,9 +291,9 @@ export default function Home() {
           <h3 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
             Powerful Audio Intelligence
           </h3>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-lg">
-            Discover how Fish Audio transforms your text into high-quality, actionable audio content
-          </p>
+			<p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-lg">
+			  Transform your text into high-quality, impactful audio content
+			</p>
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -318,9 +318,9 @@ export default function Home() {
             desc: "Generate speech in 13+ major languages and regional accents.",
             color: "bg-green-100 text-green-600 dark:bg-green-700 dark:text-green-200"
           }, {
-            icon: UserGroupIcon,
-            title: "Team Collaboration",
-            desc: "Share projects, voices, and generated audio with your team members.",
+            icon: ArrowPathIcon,
+            title: "History",
+            desc: "Access and manage all your previously generated audio files.",
             color: "bg-amber-100 text-amber-600 dark:bg-amber-700 dark:text-amber-200"
           }, {
             icon: PresentationChartLineIcon,

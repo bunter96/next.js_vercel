@@ -96,7 +96,7 @@ export default function VoiceCloning() {
     audio.src = audioUrl;
 
     audio.onloadedmetadata = () => {
-      if (audio.duration < 10) {
+      if (audio.duration < 2) {
         setAudioDurationError('Audio must be at least 30 seconds long.');
       } else {
         setAudioFile(file);

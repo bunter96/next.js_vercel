@@ -25,14 +25,6 @@ export default async function handler(req, res) {
 
     const { planId, billingCycle, fullPlanName } = req.body;
 
-    console.log('Creem.io request:', {
-      product_id: planId,
-      billingCycle,
-      customer_email: user.email,
-      fullPlanName, // Log the full plan name
-      apiKey: process.env.CREEM_API_KEY ? 'Set' : 'Missing',
-    });
-
     const response = await fetch(`${process.env.CREEM_API_BASE_URL}/v1/checkouts`, {
       method: 'POST',
       headers: {
@@ -54,7 +46,6 @@ export default async function handler(req, res) {
     });
 
     const session = await response.json();
-    console.log('Creem.io response:', { status: response.status, body: session });
 
     if (!response.ok) {
       throw new Error(session.error || `Creem.io API failed with status ${response.status}`);
@@ -62,7 +53,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ url: session.checkout_url });
   } catch (error) {
-    console.error('Checkout error:', error.message);
     return res.status(500).json({ message: error.message });
   }
 }

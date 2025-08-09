@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
               picture: userData.prefs?.picture || '',
               creem_customer_id: '',
               current_active_plan: 'free',
-              is_active: false,
+              is_active: true,
               char_allowed: charAllowed,
               char_remaining: charRemaining,
               current_plan_start_date: null,
@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
             }
           }
         } catch (error) {
-          console.error('Error fetching Google profile picture:', error);
+          // Error fetching profile picture is handled silently
         }
       }
 
@@ -103,7 +103,6 @@ export function AuthProvider({ children }) {
         ...userDoc,
       });
     } catch (err) {
-      console.error('Error fetching user:', err);
       setUser(null);
     } finally {
       setLoading(false);
@@ -124,7 +123,6 @@ export function AuthProvider({ children }) {
       );
       setUser(null);
     } catch (error) {
-      console.error('Error during logout:', error);
       toast.error('Failed to log out completely. Please try again.', {
         position: 'top-right',
         autoClose: 3000,

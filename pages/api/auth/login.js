@@ -15,9 +15,6 @@ export default async function handler(req, res) {
       failureRedirect
     );
 
-    // Log for debugging
-    console.log('Login URL:', loginUrl);
-
     // Check if loginUrl is a valid string
     if (!loginUrl || typeof loginUrl !== 'string') {
       throw new Error('Failed to generate OAuth login URL');
@@ -27,7 +24,6 @@ export default async function handler(req, res) {
     res.writeHead(302, { Location: loginUrl });
     res.end();
   } catch (error) {
-    console.error('Error in /api/auth/login:', error);
     res.status(500).json({ error: 'Failed to initiate OAuth login', details: error.message });
   }
 }

@@ -136,7 +136,10 @@ const BrowseModelsTabContent = ({ onSelectModel }) => {
         const response = await databases.listDocuments(
           process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
           process.env.NEXT_PUBLIC_APPWRITE_BROWSE_MODELS_COLLECTION_ID,
-          [Query.orderDesc('$createdAt')]
+          [
+            Query.equal('is_active', true), // <-- MODIFICATION: Filter for active models
+            Query.orderDesc('$createdAt')
+          ]
         );
         setModels(response.documents);
         setLoading(false);

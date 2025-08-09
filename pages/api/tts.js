@@ -41,7 +41,6 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'audio/mpeg');
     res.status(200).send(Buffer.from(response.data));
   } catch (error) {
-    console.error('Fish Audio TTS Error:', error.response?.data || error.message);
     const status = error.response?.status || 500;
     const message = error.response?.data?.error || 'Failed to generate speech';
     res.status(status).json({ error: message });

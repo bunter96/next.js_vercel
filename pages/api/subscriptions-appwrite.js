@@ -34,7 +34,6 @@ export default async function handler(req, res) {
       status: subscription.status || 'Not available',
     });
   } catch (error) {
-    console.error('Error fetching subscription:', error.message);
     return res.status(500).json({ error: 'Failed to fetch subscription' });
   }
 }

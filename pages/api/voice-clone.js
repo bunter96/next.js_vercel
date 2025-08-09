@@ -38,7 +38,6 @@ export default async function handler(req, res) {
     const [fields, parsedFiles] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
-        console.log('Parsed files:', files); // Debug log
         resolve([fields, files]);
       });
     });
@@ -46,28 +45,23 @@ export default async function handler(req, res) {
 
     // Validate audio file
     const audioFile = files.voices;
-    console.log('audioFile:', audioFile); // Debug log
     if (!audioFile) {
       return res.status(400).json({ error: 'Audio file is required' });
     }
 
     const audioFiles = Array.isArray(audioFile) ? audioFile : [audioFile];
-    console.log('audioFiles:', audioFiles); // Debug log
     const validAudioFile = audioFiles.find(f => {
       if (!f || !f.mimetype || !f.size || !f.filepath) {
-        console.log('Invalid file object:', f); // Debug log
         return false;
       }
       return ALLOWED_AUDIO_TYPES.has(f.mimetype) && f.size <= MAX_AUDIO_SIZE;
     });
-    console.log('validAudioFile:', validAudioFile); // Debug log
 
     if (!validAudioFile) {
       return res.status(400).json({ error: 'Invalid audio file: must be MP3 or WAV and under 100MB' });
     }
 
     if (!validAudioFile.filepath) {
-      console.error('No filepath in validAudioFile:', validAudioFile);
       return res.status(400).json({ error: 'Invalid audio file: missing filepath' });
     }
 
@@ -137,8 +131,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('API Error:', error);
-
     if (files) {
       await Promise.all(
         Object.values(files)

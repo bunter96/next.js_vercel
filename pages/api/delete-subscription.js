@@ -22,16 +22,11 @@ export default async function handler(req, res) {
 
     if (subscriptionResponse.documents.length > 0) {
       const subscriptionDoc = subscriptionResponse.documents[0];
-      console.log('Found subscription document to delete:', subscriptionDoc.$id);
-
       await serverDatabases.deleteDocument(
         process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
         process.env.NEXT_PUBLIC_APPWRITE_SUBSCRIPTIONS_COLLECTION_ID,
         subscriptionDoc.$id
       );
-      console.log(`Deleted subscription document ${subscriptionDoc.$id} for user ${userId}`);
-    } else {
-      console.log('No subscription document found for user:', userId);
     }
 
     // Find and update the user profile to remove specified attributes
@@ -46,7 +41,6 @@ export default async function handler(req, res) {
     }
 
     const profileDoc = profileResponse.documents[0];
-    console.log('Found user profile to update:', profileDoc.$id);
 
     await serverDatabases.updateDocument(
       process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
@@ -61,11 +55,8 @@ export default async function handler(req, res) {
       }
     );
 
-    console.log(`Updated user profile ${profileDoc.$id} by removing creem_customer_id, creem_subscription_id, active_product_id, billing_cycle, and plan_type`);
-
     return res.status(200).json({ message: 'Subscription document deleted and user profile updated successfully' });
   } catch (error) {
-    console.error('Delete subscription error:', error.message);
     return res.status(500).json({ error: 'Failed to delete subscription document or update user profile' });
   }
 }

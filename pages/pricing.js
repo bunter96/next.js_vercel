@@ -1,10 +1,10 @@
 // pricing.js
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import PropTypes from 'prop-types';
 import { motion, useReducedMotion } from "framer-motion";
-import { CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, ChevronDown } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
-import { account, databases } from '../lib/appwriteConfig';
+import { account } from '../lib/appwriteConfig';
 import { toast } from 'react-hot-toast';
 import SubscriptionChangeModal from '../components/SubscriptionChangeModal'; // Make sure this path is correct
 
@@ -26,15 +26,7 @@ const formatCurrency = (amount, currency = 'USD') => {
   }).format(amount);
 };
 
-const getAllUniqueFeatures = (plans) => {
-  const features = new Set();
-  plans.forEach(plan => {
-    plan.features.forEach(feature => features.add(feature));
-  });
-  return Array.from(features);
-};
-
-// Plan data
+// Plan data (Refactored)
 const plans = [
   {
     title: "Free",
@@ -43,15 +35,16 @@ const plans = [
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "For individuals who want to try out our platform",
+    monthlyCredits: 10000, // Numeric value for credits
     features: [
-      "10,000 monthly credits",
+      "Monthly credits",    // Generic feature name
       "Audio Download",
       "Characters per conversion",
     ],
     cta: "Start for Free",
     featured: false,
-    monthlyId: 'free-monthly', // Special identifier for free plan
-    yearlyId: 'free-yearly',   // Special identifier for free plan
+    monthlyId: 'free-monthly',
+    yearlyId: 'free-yearly',
   },
   {
     title: "Starter",
@@ -60,12 +53,14 @@ const plans = [
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "Perfect for individuals starting out",
+    monthlyCredits: 50000,
     features: [
-      "50,000 monthly credits",
+      "Monthly credits",
       "Voice cloning",
       "Numbe of Hours speech",
       "Audio Download",
       "Characters per conversion",
+	  "Priority generation",
     ],
     cta: "Get Started",
     featured: false,
@@ -79,8 +74,9 @@ const plans = [
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "Ideal for growing teams and businesses",
+    monthlyCredits: 100000,
     features: [
-      "100,000 monthly credits",
+      "Monthly credits",
       "Voice cloning",
       "Numbe of Hours speech",
       "Analytics",
@@ -88,6 +84,7 @@ const plans = [
       "Commercial use",
       "Characters per conversion",
       "Generated file storage",
+	  "Priority generation",
     ],
     cta: "Upgrade Now",
     featured: true,
@@ -101,8 +98,9 @@ const plans = [
     frequencyMonthly: "/mo",
     frequencyYearly: "/yr",
     description: "High-performance plan for scaling businesses",
+    monthlyCredits: 300000,
     features: [
-      "300,000 monthly credits",
+      "Monthly credits",
       "Voice cloning",
       "Numbe of Hours speech",
       "Analytics",
@@ -119,6 +117,7 @@ const plans = [
     yearlyId: process.env.NEXT_PUBLIC_CREEM_TURBO_YEARLY_PRODUCT_ID,
   },
 ];
+
 
 // Animation variants
 const containerVariants = {
@@ -139,11 +138,6 @@ const tableRowVariants = {
 const buttonVariants = {
   hover: { scale: 1.05, boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.2)" },
   tap: { scale: 0.95 },
-};
-
-const faqVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 80 } },
 };
 
 // FAQ data
@@ -176,10 +170,6 @@ const faqs = [
     question: "Do you offer refunds?",
     answer: "Refunds are not available for subscriptions, but you can cancel anytime to avoid future charges. Contact support for assistance with any issues.",
   },
-  {
-    question: "How does the Dedicated Account Manager feature work?",
-    answer: "With the Turbo plan, a Dedicated Account Manager provides personalized support, helping you optimize your use of our platform and addressing any concerns.",
-  },
 ];
 
 export default function PricingPage() {
@@ -189,11 +179,9 @@ export default function PricingPage() {
   const shouldReduceMotion = useReducedMotion();
   const [openIndex, setOpenIndex] = useState(null);
 
-  // New state for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [planToChangeTo, setPlanToChangeTo] = useState(null); // Stores the plan user wants to subscribe to
+  const [planToChangeTo, setPlanToChangeTo] = useState(null);
 
-  // Memoized values
   const memoizedPlans = useMemo(() => plans, []);
   const uniqueFeatures = [
     "Monthly credits",
@@ -209,7 +197,6 @@ export default function PricingPage() {
   ];
   const activePlanId = useMemo(() => user?.active_product_id || null, [user]);
 
-  // Find the active plan object if subscribed
   const currentActivePlan = useMemo(() => {
     if (!activePlanId) return null;
     for (const plan of plans) {
@@ -220,13 +207,10 @@ export default function PricingPage() {
   }, [activePlanId, plans]);
 
 
-  // Helper function to actually process the subscription
   const processSubscription = async (plan) => {
     try {
       setLoading(plan.title);
-
       const newPlanId = yearly ? plan.yearlyId : plan.monthlyId;
-
       const jwtResponse = await account.createJWT();
       if (!jwtResponse?.jwt) throw new Error('Failed to create authentication token');
 
@@ -259,14 +243,13 @@ export default function PricingPage() {
       });
     } finally {
       setLoading(null);
-      setIsModalOpen(false); // Close modal on completion/error
+      setIsModalOpen(false);
       setPlanToChangeTo(null);
     }
   };
 
 
   const handleSubscribe = debounce(async (plan) => {
-    // Handle free plan separately
     if (plan.title === 'Free') {
       if (user) {
         toast.success("You are already on the Free plan!");
@@ -285,7 +268,6 @@ export default function PricingPage() {
 
     const newPlanId = yearly ? plan.yearlyId : plan.monthlyId;
 
-    // Check if the user is already subscribed to this exact plan
     if (activePlanId === newPlanId) {
       toast("You're already subscribed to this plan!", {
         duration: 3000,
@@ -294,26 +276,21 @@ export default function PricingPage() {
       return;
     }
 
-    // If user has an active plan, open the modal for confirmation
     if (currentActivePlan) {
-      setPlanToChangeTo(plan); // Store the plan details for the modal
-      setIsModalOpen(true);    // Open the modal
-      return; // Stop here, wait for modal confirmation
+      setPlanToChangeTo(plan);
+      setIsModalOpen(true);
+      return;
     }
 
-    // If no active plan, proceed directly
     processSubscription(plan);
-
   }, 300);
 
-  // Function to call when user confirms in the modal
   const handleModalConfirm = () => {
     if (planToChangeTo) {
       processSubscription(planToChangeTo);
     }
   };
 
-  // Runtime prop-type checking in development
   if (process.env.NODE_ENV === 'development') {
     const userPropTypes = {
       active_product_id: PropTypes.string,
@@ -430,19 +407,30 @@ export default function PricingPage() {
                 <p id={`plan-${plan.title}-description`} className="text-gray-600 mb-6 text-base dark:text-gray-300">
                   {plan.description}
                 </p>
+                {/* UPDATED: Feature list rendering logic */}
                 <ul className="text-left space-y-3 mb-8 w-full">
-                  {plan.features.map((feature, i) => (
-                    <motion.li
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: shouldReduceMotion ? 0 : 0.3 + i * 0.1 }}
-                      className="flex items-center gap-3 text-gray-700 text-base dark:text-gray-300"
-                    >
-                      <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 dark:text-green-400" />
-                      <span>{feature}</span>
-                    </motion.li>
-                  ))}
+                  {plan.features.map((feature, i) => {
+                    let featureDisplay = feature;
+
+                    if (feature === "Monthly credits" && plan.monthlyCredits) {
+                      const amount = yearly ? plan.monthlyCredits * 12 : plan.monthlyCredits;
+                      const period = yearly ? 'yearly' : 'monthly';
+                      featureDisplay = `${amount.toLocaleString()} ${period} credits`;
+                    }
+
+                    return (
+                      <motion.li
+                        key={i}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: shouldReduceMotion ? 0 : 0.3 + i * 0.1 }}
+                        className="flex items-center gap-3 text-gray-700 text-base dark:text-gray-300"
+                      >
+                        <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 dark:text-green-400" />
+                        <span>{featureDisplay}</span>
+                      </motion.li>
+                    );
+                  })}
                 </ul>
                 <motion.button
                   variants={buttonVariants}
@@ -516,11 +504,16 @@ export default function PricingPage() {
                       <td className="p-4 text-left font-medium sticky left-0 bg-white z-10 dark:bg-gray-800 dark:text-gray-300">
                         {feature}
                       </td>
+                      {/* UPDATED: Comparison table cell rendering */}
                       {memoizedPlans.map((plan, j) => {
                           let cellContent;
                           if (feature === "Monthly credits") {
-                            const creditFeature = plan.features.find(f => f.includes('credits'));
-                            cellContent = creditFeature ? <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{creditFeature.replace(/ monthly credits/g, '')}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>;
+                            if (plan.monthlyCredits) {
+                                const amount = yearly ? plan.monthlyCredits * 12 : plan.monthlyCredits;
+                                cellContent = <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{amount.toLocaleString()}</span>;
+                            } else {
+                                cellContent = <span className="text-gray-400 dark:text-gray-600">—</span>;
+                            }
                           } else {
                             cellContent = plan.features.includes(feature) ? (
                               <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
@@ -565,11 +558,16 @@ export default function PricingPage() {
                     <td className="p-4 font-medium text-left sticky left-0 bg-white z-10 dark:bg-gray-800 dark:text-gray-300">
                       {feature}
                     </td>
+                    {/* UPDATED: Comparison table cell rendering */}
                     {memoizedPlans.map((plan, j) => {
                         let cellContent;
                         if (feature === "Monthly credits") {
-                          const creditFeature = plan.features.find(f => f.includes('credits'));
-                          cellContent = creditFeature ? <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{creditFeature.replace(/ monthly credits/g, '')}</span> : <span className="text-gray-400 dark:text-gray-600">—</span>;
+                            if (plan.monthlyCredits) {
+                                const amount = yearly ? plan.monthlyCredits * 12 : plan.monthlyCredits;
+                                cellContent = <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{amount.toLocaleString()}</span>;
+                            } else {
+                                cellContent = <span className="text-gray-400 dark:text-gray-600">—</span>;
+                            }
                         } else {
                           cellContent = plan.features.includes(feature) ? (
                             <CheckCircle2 className="inline-block text-green-500 w-6 h-6 dark:text-green-400" />
@@ -624,15 +622,14 @@ export default function PricingPage() {
         </motion.section>
       </div>
 
-      {/* Place the modal component at the end of your PricingPage's JSX, but inside the main section/div */}
       <SubscriptionChangeModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setPlanToChangeTo(null); // Clear the stored plan if modal is closed
+          setPlanToChangeTo(null);
         }}
         currentPlan={currentActivePlan}
-        newPlan={planToChangeTo || {}} // Pass the new plan data to the modal
+        newPlan={planToChangeTo || {}}
         newBillingCycle={yearly ? 'yearly' : 'monthly'}
         onConfirm={handleModalConfirm}
       />
@@ -640,7 +637,6 @@ export default function PricingPage() {
   );
 }
 
-// PropTypes for development
 PricingPage.propTypes = {
-  // Add any props if this component receives any
+  
 };

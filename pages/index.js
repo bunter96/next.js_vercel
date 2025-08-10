@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from 'next/link';
+import Head from 'next/head';
 import {
   ShieldCheckIcon,
   PresentationChartLineIcon,
@@ -84,8 +85,22 @@ export default function Home() {
   const [selectedTab, setSelectedTab] = useState(useCases[0]);
 
   return (
-    // Base background for the entire page
     <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300">
+      <Head>
+        <title>Studio Quality AI Voice Generation Platform | LowCostTTS</title>
+        <meta name="description" content="Experience natural, human-like speech generation without the premium price tag. Affordable, fast, and powerful AI voice platform supporting 13 languages and instant voice cloning." />
+        <meta name="keywords" content="AI voice, text to speech, TTS, voice cloning, multilingual, affordable, studio quality, audio generation, LowCostTTS" />
+        <meta property="og:title" content="Studio Quality AI Voice Generation Platform | LowCostTTS" />
+        <meta property="og:description" content="Affordable, fast, and powerful AI voice platform supporting 13 languages and instant voice cloning." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://app.lowcosttts.online/" />
+        <meta property="og:image" content="https://app.lowcosttts.online/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Studio Quality AI Voice Generation Platform | LowCostTTS" />
+        <meta name="twitter:description" content="Affordable, fast, and powerful AI voice platform supporting 13 languages and instant voice cloning." />
+        <meta name="twitter:image" content="https://app.lowcosttts.online/og-image.png" />
+        <link rel="canonical" href="https://app.lowcosttts.online/" />
+      </Head>
       <section className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white overflow-hidden
                     dark:from-gray-800 dark:to-gray-900 dark:text-gray-100">
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10 dark:opacity-5"></div>
